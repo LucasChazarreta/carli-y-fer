@@ -121,6 +121,30 @@
           >
         </div>
       </section>
+      <section id="confirmar" class="section rsvp-section" aria-labelledby="rsvp-title">
+        <p class="eyebrow">Confirmación de asistencia</p>
+        <h2 id="rsvp-title">¿Nos acompañás?</h2>
+        <p class="section-intro">
+          Ingresá los datos tal como figuran en tu invitación. Podés volver a
+          responder si más adelante necesitás cambiar tu decisión.
+        </p>
+        <div id="rsvp-panel" class="rsvp-panel">
+          <form id="rsvp-form">
+            <label>Nombre o grupo
+              <input name="name" required minlength="1" maxlength="120" autocomplete="name" />
+            </label>
+            <label>Código de la invitación
+              <input name="code" required minlength="1" maxlength="100" autocomplete="off"
+                autocapitalize="characters" spellcheck="false" />
+            </label>
+            <div class="button-row" aria-label="Elegí tu respuesta">
+              <button class="button" type="submit" name="response" value="confirmed">Sí, confirmo</button>
+              <button class="button outline" type="submit" name="response" value="declined">No podré asistir</button>
+            </div>
+            <p id="rsvp-status" class="form-result" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
       <section id="agendar" class="calendar-band">
         <div>
           <p class="eyebrow">Reservá la fecha</p>
@@ -329,5 +353,6 @@
       ♫
     </button>
     <script type="module" src="app.js"></script>
+    <script type="module" src="rsvp.js"></script>
   </body>
 </html>

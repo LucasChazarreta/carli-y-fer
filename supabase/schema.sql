@@ -24,11 +24,20 @@ create table public.wedding_draft (
 );
 create table public.guests (
   id uuid primary key default gen_random_uuid(),
+  -- The printable credential is generated and delivered outside the database.
+  -- Only its SHA-256 verifier is ever persisted here.
+  credential_hash text not null unique default encode(sha256(uuid_send(gen_random_uuid()) || uuid_send(gen_random_uuid())),'hex')
+    check(credential_hash ~ '^[0-9a-f]{64}$'),
   name text not null check(length(trim(name)) between 1 and 120),
   group_name text not null default '' check(length(group_name)<=80),
   status text not null default 'pending' check(status in ('pending','confirmed','declined')),
   dietary text not null default '' check(length(dietary)<=160),
   notes text not null default '' check(length(notes)<=500),
+  response_first_at timestamptz,
+  response_updated_at timestamptz,
+  response_count integer not null default 0 check(response_count >= 0),
+  response_name text,
+  response_client_hash text check(response_client_hash is null or response_client_hash ~ '^[0-9a-f]{64}$'),
   updated_at timestamptz not null default now()
 );
 create table public.messages (
@@ -54,6 +63,12 @@ create table private.submission_tickets (
   kind text not null check(kind in ('upload','message','song')),
   size_bytes bigint not null default 0,
   state text not null default 'reserved' check(state in ('reserved','complete','failed')),
+  created_at timestamptz not null default now()
+);
+create table private.rsvp_attempts (
+  id bigint generated always as identity primary key,
+  client_hash text not null check(client_hash ~ '^[0-9a-f]{64}$'),
+  succeeded boolean not null default false,
   created_at timestamptz not null default now()
 );
 create table private.album_policy (
@@ -87,6 +102,46 @@ grant select,insert,update,delete on public.guests to authenticated;
 grant update(approved),delete on public.messages to authenticated;
 grant select,delete on public.memories to authenticated;
 grant all on public.wedding_settings,public.wedding_draft,public.guests,public.messages,public.memories to service_role;
+
+-- The Edge Function is the sole caller. It resolves both factors and owns the
+-- only non-admin RSVP update path; callers can never select a guest id.
+create function public.submit_guest_rsvp(
+  p_credential_hash text,p_name text,p_status text,p_client_hash text
+) returns boolean
+language plpgsql security definer set search_path = '' as $$
+declare resolved_id uuid; attempt_id bigint; clean_name text;
+begin
+  if p_credential_hash !~ '^[0-9a-f]{64}$' or p_client_hash !~ '^[0-9a-f]{64}$'
+    or p_status not in ('confirmed','declined') or length(p_name) not between 1 and 120 then
+    raise exception 'Solicitud inválida';
+  end if;
+  if (select count(*) from private.rsvp_attempts
+      where client_hash=p_client_hash and created_at>clock_timestamp()-interval '1 hour') >= 20 then
+    raise exception 'Hay muchos intentos. Esperá un momento antes de volver a probar.';
+  end if;
+  insert into private.rsvp_attempts(client_hash) values(p_client_hash) returning id into attempt_id;
+  clean_name=lower(regexp_replace(trim(p_name),'[[:space:]]+',' ','g'));
+  select id into resolved_id from public.guests
+   where credential_hash=p_credential_hash
+     and clean_name in (
+       lower(regexp_replace(trim(name),'[[:space:]]+',' ','g')),
+       nullif(lower(regexp_replace(trim(group_name),'[[:space:]]+',' ','g')),'')
+     )
+   for update;
+  if resolved_id is null then return false; end if;
+  update public.guests set
+    status=p_status,
+    response_first_at=coalesce(response_first_at,clock_timestamp()),
+    response_updated_at=clock_timestamp(),
+    response_count=response_count+1,
+    response_name=p_name,
+    response_client_hash=p_client_hash
+  where id=resolved_id;
+  update private.rsvp_attempts set succeeded=true where id=attempt_id;
+  return true;
+end;$$;
+revoke all on function public.submit_guest_rsvp(text,text,text,text) from public,anon,authenticated;
+grant execute on function public.submit_guest_rsvp(text,text,text,text) to service_role;
 
 create function public.save_wedding_draft(p_data jsonb, p_expected timestamptz) returns timestamptz
 language plpgsql security definer set search_path = '' as $$
