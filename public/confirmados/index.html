@@ -28,11 +28,19 @@
         <p class="confirmed-message">Tu lugar ya es parte de nuestra celebración. Gracias por acompañarnos en este día tan importante; nos vemos el 17 de octubre.</p>
         <div class="confirmed-actions" aria-label="Próximos pasos">
           <a class="button" href="../#cancion">Sugerir una canción</a>
-          <a class="button outline" href="../#recuerdos">Compartir un recuerdo</a>
         </div>
+        <section class="memories-access" aria-labelledby="memories-title">
+          <h2 id="memories-title">Compartí tus recuerdos</h2>
+          <p>Escaneá el QR o abrí el enlace para subir tus fotos y videos.</p>
+          <div id="memories-qr" class="memories-qr" aria-live="polite"></div>
+          <a id="memories-link" class="button outline" href="../#recuerdos"
+            >Abrir recuerdos</a
+          >
+        </section>
         <a class="return-link" href="../">Volver a la invitación</a>
       </section>
     </main>
+    <script src="../assets/qrcode.js"></script>
     <script type="module" src="confirmados.js"></script>
   </body>
 </html>

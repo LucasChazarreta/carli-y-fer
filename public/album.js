@@ -27,17 +27,13 @@ export function albumState(wedding, now = Date.now()) {
   const url = googleFormURL(wedding.albumUploadUrl);
   return { kind: url ? "google_forms" : "pending", url };
 }
-export function albumQrURL(siteUrl, provider, code = "") {
+// The public memories address is deliberately independent from the upload
+// provider. Never carry state from an admin/preview URL into a guest link.
+export function publicMemoriesURL(siteUrl) {
   const url = new URL(siteUrl);
   if (url.protocol !== "https:" || url.username || url.password)
     throw new Error("Usá una dirección pública HTTPS.");
-  url.searchParams.delete("preview");
-  if (provider === "supabase") {
-    if (!code.trim()) throw new Error("Completá el código de invitados.");
-    url.hash = new URLSearchParams({ codigo: code.trim() }).toString();
-  } else if (provider === "google_forms") {
-    // The QR stays on our site, so its destination can change without reprinting.
-    url.hash = "recuerdos";
-  } else throw new Error("Seleccioná un servicio de álbum válido.");
+  url.search = "";
+  url.hash = "recuerdos";
   return url.href;
 }

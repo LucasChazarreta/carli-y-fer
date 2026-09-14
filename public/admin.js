@@ -1,7 +1,7 @@
 import { api, configured } from "./api.js";
 import { initialWedding } from "./data.js";
 import { config } from "./config.js";
-import { googleFormURL, albumQrURL } from "./album.js";
+import { googleFormURL, publicMemoriesURL } from "./album.js";
 import {
   escapeHTML as h,
   csvText,
@@ -17,7 +17,6 @@ let guests = [],
   draftVersion = null,
   currentView = "guests";
 let qrSVG = "";
-let publishedAlbumProvider = "supabase";
 const labels = {
   pending: "Pendiente",
   confirmed: "Asiste",
@@ -351,13 +350,8 @@ $("#export-songs").onclick = () =>
   );
 async function loadAlbum() {
   const event = await api.wedding();
-  publishedAlbumProvider = event?.albumProvider || "supabase";
-  const external = publishedAlbumProvider === "google_forms";
+  const external = event?.albumProvider === "google_forms";
   $("#external-album-admin").hidden = !external;
-  $("#qr-code-field").hidden = external;
-  $("#qr-help").textContent = external
-    ? "El QR abre la sección Recuerdos de la invitación. No necesita el código de invitados y seguirá sirviendo si cambiás el formulario."
-    : "El código debe coincidir con el configurado en el servidor. Quien reciba el QR podrá enviar recuerdos, pero no ver el álbum.";
   memories = await api.privateRows(
     "memories",
     "select=*&order=created_at.desc",
@@ -413,18 +407,21 @@ $("#album-list").onclick = (e) =>
 $("#make-qr").onclick = () =>
   action(async () => {
     const url = safeURL($("#qr-url").value);
-    const code = $("#qr-code").value.trim();
     if (!url) throw new Error("Completá la dirección HTTPS de la invitación.");
-    const target = albumQrURL(url, publishedAlbumProvider, code);
+    const target = publicMemoriesURL(url);
     const qr = window.qrcode(0, "M");
     qr.addData(target);
     qr.make();
     qrSVG = qr.createSvgTag({ cellSize: 5, margin: 4, scalable: true });
     $("#qr-output").innerHTML = qrSVG;
+    const svg = $("#qr-output svg");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Código QR para abrir los recuerdos de Carli y Fer");
+    qrSVG = svg.outerHTML;
     $("#download-qr").hidden = false;
   });
 $("#download-qr").onclick = () =>
-  download(qrSVG, "Carli-y-Fer-QR-album.svg", "image/svg+xml");
+  download(qrSVG, "Carli-y-Fer-QR-recuerdos.svg", "image/svg+xml");
 document.querySelectorAll("[data-view]").forEach(
   (button) =>
     (button.onclick = () =>

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { googleFormURL, albumState, albumQrURL } from "../public/album.js";
+import { googleFormURL, albumState, publicMemoriesURL } from "../public/album.js";
 const event = {
   showAlbum: true,
   albumProvider: "google_forms",
@@ -48,16 +48,22 @@ test("album handles pending configuration, external mode, internal fallback and 
   );
   assert.equal(albumState({ ...event, showAlbum: false }, now).kind, "closed");
 });
-test("external QR keeps the invitation domain and never embeds guest code or draft flag", () => {
-  const url = albumQrURL(
-    "https://boda-carli-fer.agentslucca.online/?preview=1#codigo=secret",
-    "google_forms",
-    "secret",
-  );
-  assert.equal(url, "https://boda-carli-fer.agentslucca.online/#recuerdos");
-  assert.throws(() => albumQrURL("https://wedding.example", "supabase", ""));
-  assert.match(
-    albumQrURL("https://wedding.example", "supabase", "a b"),
-    /#codigo=a\+b$/,
-  );
+test("public memories URL is stable and strips every kind of private state", () => {
+  const expected = "https://boda-carli-fer.agentslucca.online/#recuerdos";
+  for (const privateState of [
+    "?preview=1&codigo=RSVP&token=confirmation&access_token=auth&refresh_token=refresh&password=admin#codigo=shared",
+    "?admin=true&credential=secret&api_key=private#token=confirmation",
+    "#preview=1&codigo=RSVP&proof=signed",
+  ]) {
+    const result = publicMemoriesURL(
+      `https://boda-carli-fer.agentslucca.online/${privateState}`,
+    );
+    assert.equal(result, expected);
+    const url = new URL(result);
+    assert.equal(url.origin, "https://boda-carli-fer.agentslucca.online");
+    assert.equal(url.hash, "#recuerdos");
+    assert.equal(url.search, "");
+  }
+  assert.throws(() => publicMemoriesURL("http://wedding.example/?token=x"));
+  assert.throws(() => publicMemoriesURL("https://admin:secret@wedding.example/"));
 });
