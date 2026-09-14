@@ -23,6 +23,11 @@ if (guestCode) {
   );
   document.querySelector("#album-dialog").showModal();
 }
+const invitationAction = location.hash === "#cancion"
+  ? "song-dialog"
+  : location.hash === "#recuerdos"
+    ? "album-dialog"
+    : "";
 function render() {
   document
     .querySelectorAll("[data-text]")
@@ -121,6 +126,10 @@ function updateCountdown() {
       "Llegó nuestro gran día";
 }
 render();
+if (invitationAction) {
+  if (invitationAction === "album-dialog") renderAlbum();
+  document.getElementById(invitationAction).showModal();
+}
 setInterval(updateCountdown, 1000);
 document.querySelector("#preview-banner").hidden = configured && !isDraft;
 document.querySelectorAll("[data-open]").forEach((button) =>

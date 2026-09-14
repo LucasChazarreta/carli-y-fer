@@ -174,4 +174,10 @@ export const api = {
       body: { name, code, response },
     });
   },
+  async validateRsvpProof(proof) {
+    return request("/functions/v1/rsvp", {
+      method: "POST",
+      body: { action: "validate", proof },
+    });
+  },
 };
