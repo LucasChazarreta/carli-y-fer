@@ -257,3 +257,62 @@ async function hydrate() {
   }
 }
 void hydrate();
+
+const backgroundMusic = document.querySelector("#background-music");
+const musicToggle = document.querySelector("#music-toggle");
+
+function updateMusicButton() {
+  const playing = !backgroundMusic.paused;
+
+  musicToggle.classList.toggle("is-playing", playing);
+
+  musicToggle.textContent = playing ? "❚❚" : "♫";
+
+  musicToggle.setAttribute(
+    "aria-label",
+    playing ? "Pausar música" : "Reproducir música",
+  );
+
+  musicToggle.title = playing ? "Pausar música" : "Reproducir música";
+}
+
+async function playMusic() {
+  if (!backgroundMusic.paused) return;
+
+  try {
+    await backgroundMusic.play();
+    updateMusicButton();
+  } catch {
+    // El navegador puede bloquear la reproducción hasta una interacción válida.
+  }
+}
+
+musicToggle.addEventListener("click", async (event) => {
+  event.stopPropagation();
+
+  if (backgroundMusic.paused) {
+    await playMusic();
+  } else {
+    backgroundMusic.pause();
+    updateMusicButton();
+  }
+});
+
+function startMusicOnFirstInteraction(event) {
+  if (event.target.closest("#music-toggle")) return;
+
+  void playMusic();
+}
+
+document.addEventListener("pointerdown", startMusicOnFirstInteraction, {
+  once: true,
+});
+
+document.addEventListener("keydown", startMusicOnFirstInteraction, {
+  once: true,
+});
+
+backgroundMusic.addEventListener("play", updateMusicButton);
+backgroundMusic.addEventListener("pause", updateMusicButton);
+
+updateMusicButton();
