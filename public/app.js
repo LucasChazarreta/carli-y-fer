@@ -285,40 +285,34 @@ function updateMusicButton() {
   musicToggle.title = playing ? "Pausar música" : "Reproducir música";
 }
 
-async function playMusic() {
+async function playMusicSafely() {
   if (!backgroundMusic.paused) return;
 
   try {
     await backgroundMusic.play();
     updateMusicButton();
+    return true;
   } catch {
-    // El navegador puede bloquear la reproducción hasta una interacción válida.
+    // Keep the manual control visible and usable if autoplay is rejected.
+    musicToggle.hidden = false;
+    updateMusicButton();
+    return false;
   }
+}
+
+export function tryPlayMusic() {
+  return playMusicSafely();
 }
 
 musicToggle.addEventListener("click", async (event) => {
   event.stopPropagation();
 
   if (backgroundMusic.paused) {
-    await playMusic();
+    await playMusicSafely();
   } else {
     backgroundMusic.pause();
     updateMusicButton();
   }
-});
-
-function startMusicOnFirstInteraction(event) {
-  if (event.target.closest("#music-toggle")) return;
-
-  void playMusic();
-}
-
-document.addEventListener("pointerdown", startMusicOnFirstInteraction, {
-  once: true,
-});
-
-document.addEventListener("keydown", startMusicOnFirstInteraction, {
-  once: true,
 });
 
 backgroundMusic.addEventListener("play", updateMusicButton);

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es-AR">
+<html lang="es-AR" class="opening-pending">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -19,6 +19,33 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <section
+      id="opening"
+      class="opening"
+      aria-labelledby="opening-title"
+      aria-describedby="opening-instruction"
+    >
+      <div class="opening-panel opening-panel-left" aria-hidden="true"></div>
+      <div class="opening-panel opening-panel-right" aria-hidden="true"></div>
+      <span class="opening-botanical opening-botanical-top" aria-hidden="true"></span>
+      <span class="opening-botanical opening-botanical-bottom" aria-hidden="true"></span>
+      <div class="opening-card">
+        <p class="opening-kicker">Nuestra boda</p>
+        <h1 id="opening-title" class="opening-monogram">C <span>&amp;</span> F</h1>
+        <p id="opening-instruction" class="opening-date">17 · 10 · 2026</p>
+        <button
+          id="opening-button"
+          class="opening-button"
+          type="button"
+          aria-label="Abrir invitación de Carli y Fer"
+        >
+          <span class="bow bow-left" aria-hidden="true"></span>
+          <span class="bow bow-knot" aria-hidden="true"></span>
+          <span class="bow bow-right" aria-hidden="true"></span>
+          <span class="opening-button-label">Abrir invitación</span>
+        </button>
+      </div>
+    </section>
     <a class="skip" href="#celebracion">Saltar al contenido</a>
     <div id="preview-banner" class="preview-banner" hidden>
       Vista previa · todavía no se reciben mensajes ni archivos.
@@ -37,7 +64,7 @@
     <main>
       <section id="inicio" class="hero">
         <p class="eyebrow">¡Nos casamos!</p>
-        <h1 id="couple-names">Carli <span>y</span> Fer</h1>
+        <h1 id="couple-names" tabindex="-1">Carli <span>y</span> Fer</h1>
         <div class="hero-rule"></div>
         <p class="hero-date" id="wedding-date">17 de octubre de 2026</p>
         <p class="city" data-text="city">Santiago del Estero</p>
@@ -353,6 +380,7 @@
       ♫
     </button>
     <script type="module" src="app.js"></script>
+    <script type="module" src="opening.js"></script>
     <script type="module" src="rsvp.js"></script>
   </body>
 </html>
