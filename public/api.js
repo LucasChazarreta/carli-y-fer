@@ -168,4 +168,10 @@ export const api = {
       raw: true,
     });
   },
+  async rsvp(name, code, response) {
+    return request("/functions/v1/rsvp", {
+      method: "POST",
+      body: { name, code, response },
+    });
+  },
 };

@@ -523,6 +523,18 @@ input[type="checkbox"] {
   font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
+
+.rsvp-section { text-align: center; background: var(--pale); }
+.rsvp-panel {
+  max-width: 620px;
+  margin: 36px auto 0;
+  padding: 38px;
+  text-align: left;
+  background: var(--white);
+  border: 1px solid var(--line);
+}
+.rsvp-panel .button-row { margin-top: 28px; }
+.rsvp-thanks { text-align: center; }
 .toast {
   position: fixed;
   bottom: 20px;

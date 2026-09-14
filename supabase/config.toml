@@ -1,2 +1,5 @@
 [functions.guest-submit]
 verify_jwt = false
+
+[functions.rsvp]
+verify_jwt = false

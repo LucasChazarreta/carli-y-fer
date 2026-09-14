@@ -56,6 +56,10 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
     () => as("anon", "", "select * from public.guests"),
     /permission denied/,
   );
+  await assert.rejects(
+    () => as("anon", "", "update public.guests set status='confirmed'"),
+    /permission denied/,
+  );
   assert.equal(
     (await as("authenticated", other, "select * from public.guests")).length,
     0,
@@ -73,6 +77,31 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
     (await as("authenticated", admin, "select * from public.guests")).length,
     1,
   );
+  await db.exec(`update public.guests set credential_hash=encode(sha256(convert_to('INVITE-123','UTF8')),'hex') where name='Persona privada'`);
+  const clientHash = "a".repeat(64);
+  assert.equal(
+    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','confirmed',$1) as ok", [clientHash])).rows[0].ok,
+    true,
+  );
+  // Repeating an answer is safe, and a later change updates only this credential.
+  assert.equal(
+    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','confirmed',$1) as ok", [clientHash])).rows[0].ok,
+    true,
+  );
+  assert.equal(
+    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','declined',$1) as ok", [clientHash])).rows[0].ok,
+    true,
+  );
+  assert.equal(
+    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Nombre incorrecto','confirmed',$1) as ok", [clientHash])).rows[0].ok,
+    false,
+  );
+  const audited = (await as("authenticated", admin, "select status,response_first_at,response_updated_at,response_count,response_name from public.guests"))[0];
+  assert.equal(audited.status, "declined");
+  assert.equal(audited.response_count, 3);
+  assert.ok(audited.response_first_at);
+  assert.ok(audited.response_updated_at);
+  assert.equal(audited.response_name, "Persona privada");
   assert.equal(
     (await as("authenticated", admin, "select * from public.messages")).length,
     3,
