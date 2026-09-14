@@ -652,3 +652,59 @@ input[type="checkbox"] {
     transition: none !important;
   }
 }
+
+.music-toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 90;
+
+  width: 52px;
+  height: 52px;
+
+  border: 1px solid var(--line);
+  border-radius: 50%;
+
+  background: var(--green);
+  color: var(--white);
+
+  display: grid;
+  place-items: center;
+
+  font-size: 1.4rem;
+  line-height: 1;
+
+  box-shadow: 0 8px 24px rgba(24, 63, 50, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.music-toggle:hover {
+  transform: scale(1.06);
+}
+
+.music-toggle.is-playing {
+  animation: music-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes music-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 600px) {
+  .music-toggle {
+    right: 14px;
+    bottom: 14px;
+    width: 48px;
+    height: 48px;
+  }
+}
