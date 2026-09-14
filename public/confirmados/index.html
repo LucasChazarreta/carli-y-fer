@@ -7,16 +7,32 @@
     <title>Asistencia confirmada · Carli y Fer</title>
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="confirmados.css" />
   </head>
   <body>
-    <main>
-      <section class="hero">
+    <main class="confirmed-page">
+      <section id="validation" class="validation-card" role="status" aria-live="polite">
+        <span class="loader" aria-hidden="true"></span>
+        <h1>Verificando tu confirmación…</h1>
+        <p>Un momento, por favor.</p>
+        <noscript>
+          <p>Necesitás activar JavaScript para verificar tu confirmación.</p>
+          <a class="button" href="../#confirmar">Volver a confirmar asistencia</a>
+        </noscript>
+      </section>
+
+      <section id="confirmed-content" class="confirmed-card" aria-labelledby="confirmed-title" hidden>
         <p class="eyebrow">Asistencia confirmada</p>
-        <h1>¡Qué alegría!</h1>
-        <div class="hero-rule"></div>
-        <p class="welcome">Gracias por ser parte de este día. Nos vemos el 17 de octubre.</p>
-        <a class="button" href="../">Volver a la invitación</a>
+        <h1 id="confirmed-title">¡Qué alegría que vengas!</h1>
+        <div class="hero-rule" aria-hidden="true"></div>
+        <p class="confirmed-message">Tu lugar ya es parte de nuestra celebración. Gracias por acompañarnos en este día tan importante; nos vemos el 17 de octubre.</p>
+        <div class="confirmed-actions" aria-label="Próximos pasos">
+          <a class="button" href="../#cancion">Sugerir una canción</a>
+          <a class="button outline" href="../#recuerdos">Compartir un recuerdo</a>
+        </div>
+        <a class="return-link" href="../">Volver a la invitación</a>
       </section>
     </main>
+    <script type="module" src="confirmados.js"></script>
   </body>
 </html>

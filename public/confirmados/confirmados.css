@@ -1,0 +1,36 @@
+@import url("../assets/fonts.css");
+
+.confirmed-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+  background: var(--white) url("../assets/botanical-wedding-border.png") center/cover no-repeat;
+}
+.validation-card,
+.confirmed-card {
+  width: min(680px, 100%);
+  padding: clamp(38px, 7vw, 72px);
+  border: 1px solid var(--line);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 20px 60px rgb(24 63 50 / 10%);
+  text-align: center;
+}
+.validation-card h1 { margin: 18px 0 8px; font-size: clamp(2rem, 6vw, 3rem); }
+.validation-card p,
+.confirmed-message { color: var(--muted); }
+.confirmed-card h1 { font-size: clamp(3rem, 8vw, 5.6rem); letter-spacing: -2px; }
+.confirmed-card .hero-rule { margin-inline: auto; }
+.confirmed-message { max-width: 510px; margin: 0 auto; font-size: 1.05rem; line-height: 1.85; }
+.confirmed-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin: 34px 0 24px; }
+.return-link { display: inline-block; color: var(--muted); text-decoration: underline; text-underline-offset: 5px; }
+.loader { display: inline-block; width: 42px; height: 42px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: confirmed-spin .8s linear infinite; }
+@keyframes confirmed-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .loader { animation: none; border-color: var(--green); border-left-color: transparent; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
+@media (max-width: 520px) {
+  .confirmed-actions { align-items: stretch; flex-direction: column; }
+  .confirmed-actions .button { width: 100%; }
+}
