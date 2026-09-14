@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta
+      name="description"
+      content="Carli y Fer · 17 de octubre de 2026 · Santiago del Estero. Te invitamos a compartir nuestra boda."
+    />
+    <meta property="og:title" content="Carli y Fer · Nos casamos" />
+    <meta
+      property="og:description"
+      content="17 de octubre de 2026 · Santiago del Estero"
+    />
+    <title>Carli y Fer · Nos casamos</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#celebracion">Saltar al contenido</a>
+    <div id="preview-banner" class="preview-banner" hidden>
+      Vista previa · todavía no se reciben mensajes ni archivos.
+    </div>
+    <header class="site-header">
+      <a class="monogram" href="#inicio" aria-label="Carli y Fer, inicio"
+        >C<span>&</span>F</a
+      >
+      <nav aria-label="Principal">
+        <a href="#celebracion">La boda</a
+        ><a href="#regalos" data-nav="gifts">Regalos</a
+        ><a href="#recuerdos" data-nav="album">Recuerdos</a>
+      </nav>
+      <a class="date-link" href="#agendar">17.10.26</a>
+    </header>
+    <main>
+      <section id="inicio" class="hero">
+        <p class="eyebrow">¡Nos casamos!</p>
+        <h1 id="couple-names">Carli <span>y</span> Fer</h1>
+        <div class="hero-rule"></div>
+        <p class="hero-date" id="wedding-date">17 de octubre de 2026</p>
+        <p class="city" data-text="city">Santiago del Estero</p>
+        <p class="welcome" data-text="welcome">
+          Hay momentos que se vuelven inolvidables cuando los compartimos. Nos
+          encantaría que seas parte del nuestro.
+        </p>
+        <a href="#celebracion" class="button">Acompañanos</a
+        ><span class="hero-foot">Una nueva historia, juntos.</span>
+      </section>
+      <section class="countdown-section" aria-label="Cuenta regresiva">
+        <p id="countdown-title" class="eyebrow">Cada vez falta menos</p>
+        <div id="countdown" class="countdown">
+          <div><strong>—</strong><span>días</span></div>
+          <div><strong>—</strong><span>horas</span></div>
+          <div><strong>—</strong><span>minutos</span></div>
+          <div><strong>—</strong><span>segundos</span></div>
+        </div>
+      </section>
+      <section id="celebracion" class="section celebration">
+        <p class="eyebrow">El gran día</p>
+        <h2>Un sí. Mil recuerdos.</h2>
+        <p class="section-intro">
+          Te esperamos para celebrar el comienzo de esta nueva etapa.
+        </p>
+        <div class="event-grid">
+          <article class="event-card">
+            <span class="event-number">01</span>
+            <p class="eyebrow">La ceremonia</p>
+            <h3 data-text="ceremonyName">Oratorio Don Bosco</h3>
+            <p class="time" id="ceremony-time">21:00 h</p>
+            <p data-text="ceremonyAddress" class="address"></p>
+            <a
+              id="ceremony-map"
+              class="text-link"
+              hidden
+              target="_blank"
+              rel="noopener noreferrer"
+              >Cómo llegar <span aria-hidden="true">↗</span></a
+            >
+          </article>
+          <article class="event-card">
+            <span class="event-number">02</span>
+            <p class="eyebrow">La fiesta</p>
+            <h3 data-text="partyName">Finca La Sureña</h3>
+            <p class="time" id="party-time">22:00 h</p>
+            <p data-text="partyAddress" class="address"></p>
+            <a
+              id="party-map"
+              class="text-link"
+              hidden
+              target="_blank"
+              rel="noopener noreferrer"
+              >Cómo llegar <span aria-hidden="true">↗</span></a
+            >
+          </article>
+        </div>
+        <a
+          id="shared-map"
+          class="text-link"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+          >Ver ubicación compartida ↗</a
+        >
+        <div class="practical">
+          <p>
+            Una celebración solo para adultos.<br />La invitación es personal,
+            sin acompañantes.
+          </p>
+          <p id="dress-code" hidden></p>
+        </div>
+        <div id="contact-block" class="contact-block" hidden>
+          <p id="response-copy"></p>
+          <a
+            id="contact-link"
+            class="text-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Escribir por WhatsApp ↗</a
+          >
+        </div>
+      </section>
+      <section id="agendar" class="calendar-band">
+        <div>
+          <p class="eyebrow">Reservá la fecha</p>
+          <h2>Nos vemos en octubre.</h2>
+          <p>Guardá la ceremonia y la fiesta en tu calendario.</p>
+        </div>
+        <button id="calendar-download" class="button light">
+          Agendar la boda <span aria-hidden="true">＋</span>
+        </button>
+      </section>
+      <section id="regalos" class="section gifts" hidden>
+        <p class="eyebrow">Para nuestra nueva etapa</p>
+        <h2>El mejor regalo es compartirlo.</h2>
+        <p class="section-intro" data-text="giftMessage"></p>
+        <div class="gift-details">
+          <span>Alias</span><strong data-text="giftAlias"></strong
+          ><span data-text="giftHolder"></span
+          ><button id="copy-alias" class="text-link">Copiar alias</button>
+        </div>
+      </section>
+      <section id="recuerdos" class="section memories">
+        <div class="memories-copy">
+          <p class="eyebrow">La boda, a través de tus ojos</p>
+          <h2>Ese momento<br />que solo vos viste.</h2>
+          <p>
+            Una sonrisa, un abrazo, un baile. Compartí tus fotos y videos con
+            nosotros.
+          </p>
+          <p class="small">
+            El álbum es privado: solo quienes administran la boda pueden ver los
+            archivos. Subidas disponibles hasta el 1 de noviembre, inclusive.
+          </p>
+          <button class="button outline" data-open="album-dialog">
+            Compartir un recuerdo
+          </button>
+        </div>
+        <div class="memory-note">
+          <span class="large-amp">&</span>
+          <p>
+            Vos vivilo.<br />Guardemos un recuerdo<br />para volver a vivirlo.
+          </p>
+          <span class="small">Carli y Fer · 2026</span>
+        </div>
+      </section>
+      <section id="mensajes" class="section messages">
+        <p class="eyebrow">Lo lindo también se escribe</p>
+        <h2>Palabras y canciones para celebrar.</h2>
+        <p class="section-intro">
+          Dejanos un deseo o esa canción que no puede faltar en la pista.
+        </p>
+        <div class="button-row">
+          <button class="button" data-open="message-dialog">
+            Dejar un mensaje</button
+          ><button class="button outline" data-open="song-dialog">
+            Sugerir una canción
+          </button>
+        </div>
+        <div id="approved-messages" class="wishes"></div>
+      </section>
+    </main>
+    <footer>
+      <span class="monogram">C<span>&</span>F</span>
+      <p>Gracias por ser parte de nuestra historia.</p>
+      <span>17 · 10 · 2026</span
+      ><a href="admin.html" class="admin-link">Acceso de la pareja</a>
+    </footer>
+    <dialog id="album-dialog">
+      <button class="close" data-close aria-label="Cerrar">×</button>
+      <p class="eyebrow">Nuestro álbum privado</p>
+      <h2>Compartí un recuerdo</h2>
+      <p id="album-instructions">
+        Fotos hasta 8 MB; videos hasta 25 MB. Se envían de a uno. El espacio es
+        compartido y limitado.
+      </p>
+      <div id="album-external" hidden>
+        <p id="album-external-note" class="small"></p>
+        <a
+          id="album-external-link"
+          class="button"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+          >Abrir formulario de recuerdos ↗</a
+        >
+      </div>
+      <form id="album-form">
+        <label
+          >Tu nombre<input
+            name="name"
+            maxlength="80"
+            required
+            autocomplete="name" /></label
+        ><label
+          >Código de invitados<input
+            name="code"
+            required
+            maxlength="100"
+            autocomplete="off"
+          /><small
+            >Lo recibís de la pareja junto con la invitación o el QR.</small
+          ></label
+        ><label
+          >Foto o video<input
+            name="file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+            required /></label
+        ><label class="check"
+          ><input name="consent" type="checkbox" required />Autorizo compartir
+          este archivo con la pareja y quienes administran la boda.</label
+        ><input type="hidden" name="action" value="upload" /><button
+          class="button"
+          type="submit"
+        >
+          Enviar recuerdo
+        </button>
+        <p class="form-result" role="status"></p>
+      </form>
+    </dialog>
+    <dialog id="message-dialog">
+      <button class="close" data-close aria-label="Cerrar">×</button>
+      <p class="eyebrow">Buenos deseos</p>
+      <h2>Unas palabras para nosotros</h2>
+      <form id="message-form">
+        <label
+          >Tu nombre<input
+            name="name"
+            required
+            maxlength="80"
+            autocomplete="name" /></label
+        ><label
+          >Código de invitados<input
+            name="code"
+            required
+            maxlength="100"
+            autocomplete="off" /></label
+        ><label
+          >Tu mensaje<textarea
+            name="message"
+            required
+            maxlength="600"
+            rows="4"
+          ></textarea></label
+        ><label class="check"
+          ><input type="checkbox" name="consent" required />Acepto que mi nombre
+          y mensaje se muestren si la pareja los aprueba.</label
+        ><input type="hidden" name="action" value="message" /><button
+          class="button"
+          type="submit"
+        >
+          Enviar mensaje
+        </button>
+        <p class="form-result" role="status"></p>
+      </form>
+    </dialog>
+    <dialog id="song-dialog">
+      <button class="close" data-close aria-label="Cerrar">×</button>
+      <p class="eyebrow">Que suene en la fiesta</p>
+      <h2>Tu canción infaltable</h2>
+      <form id="song-form">
+        <label
+          >Tu nombre<input
+            name="name"
+            required
+            maxlength="80"
+            autocomplete="name" /></label
+        ><label
+          >Código de invitados<input
+            name="code"
+            required
+            maxlength="100"
+            autocomplete="off" /></label
+        ><label
+          >Canción y artista<input
+            name="message"
+            required
+            maxlength="200"
+            placeholder="Nombre de la canción — Artista" /></label
+        ><input type="hidden" name="action" value="song" /><button
+          class="button"
+          type="submit"
+        >
+          Enviar canción
+        </button>
+        <p class="form-result" role="status"></p>
+      </form>
+    </dialog>
+    <div id="status" class="toast" role="status" hidden></div>
+    <noscript
+      ><p class="noscript">
+        Para agendar la boda y compartir recuerdos, activá JavaScript en tu
+        navegador.
+      </p></noscript
+    >
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

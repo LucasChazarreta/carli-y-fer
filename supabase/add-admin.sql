@@ -1,0 +1,4 @@
+-- Replace the UUID with the exact ID of a user created in Authentication > Users.
+-- Never expose this operation as a public sign-up route.
+-- Run once per authorized administrator in SQL Editor.
+-- insert into private.wedding_admins(user_id) values ('UUID-DEL-USUARIO');
