@@ -6,6 +6,11 @@
   --pale: #f3f6f1;
   --line: #d5dfd4;
   --white: #fff;
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 28px;
+  --space-lg: 48px;
+  --space-xl: 100px;
   --serif: Georgia, "Times New Roman", serif;
   --sans: Arial, Helvetica, sans-serif;
   color-scheme: light;
@@ -36,11 +41,14 @@ html.opening-active body > :not(.opening) {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  display: grid;
+  display: none;
   place-items: center;
   overflow: hidden;
   isolation: isolate;
   background: #f7f0df;
+}
+html.opening-pending .opening {
+  display: grid;
 }
 .opening-card {
   position: relative;
@@ -281,6 +289,17 @@ select:focus-visible {
   background: white url("assets/botanical-wedding-border.png") center/cover
     no-repeat;
 }
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: var(--space-md);
+  border: 1px solid color-mix(in srgb, var(--line) 68%, transparent);
+  pointer-events: none;
+}
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 3px;
@@ -291,7 +310,9 @@ select:focus-visible {
 .hero h1 {
   font-size: clamp(4rem, 10.5vw, 8rem);
   letter-spacing: -4px;
-  line-height: 1.15;
+  line-height: 0.98;
+  text-wrap: balance;
+  color: var(--green);
 }
 .hero h1 span {
   font-size: 0.65em;
@@ -370,22 +391,36 @@ select:focus-visible {
   gap: 60px;
 }
 .countdown div {
+  position: relative;
   min-width: 65px;
   display: flex;
   flex-direction: column;
 }
+.countdown div + div::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 7px;
+  left: -30px;
+  width: 1px;
+  background: var(--line);
+}
 .countdown strong {
-  font: 400 2.6rem var(--serif);
+  font: 400 clamp(2.6rem, 5vw, 3.6rem)/1 var(--serif);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  color: var(--green);
 }
 .countdown span {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: var(--space-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 .section {
   max-width: 1120px;
-  padding: 100px 36px;
+  padding: var(--space-xl) 36px;
   margin: auto;
   text-align: center;
 }
@@ -404,6 +439,23 @@ select:focus-visible {
   position: relative;
   min-height: 320px;
   padding: 46px 25px;
+}
+.event-card::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  width: 58px;
+  height: 74px;
+  background: url("assets/botanical-wedding-border.png") 8% 92% / 330px auto no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.ceremony-card {
+  background: var(--white);
+}
+.party-card {
+  background: var(--pale);
 }
 .event-card + .event-card {
   border-left: 1px solid var(--line);
@@ -469,21 +521,48 @@ select:focus-visible {
   flex-shrink: 0;
 }
 .gifts {
+  position: relative;
   border-bottom: 1px solid var(--line);
+  background: linear-gradient(90deg, transparent, var(--pale) 50%, transparent);
+  overflow: hidden;
+}
+.gifts::before,
+.gifts::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 170px;
+  background: url("assets/botanical-wedding-border.png") left center / 410px auto no-repeat;
+  opacity: 0.13;
+  pointer-events: none;
+}
+.gifts::before {
+  left: 0;
+  bottom: -32px;
+}
+.gifts::after {
+  right: 0;
+  top: -32px;
+  transform: rotate(180deg);
 }
 .gift-details {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 28px auto 0;
+  margin: var(--space-md) auto 0;
+  width: min(100%, 430px);
+  padding: var(--space-md);
   align-items: center;
+  border: 1px solid var(--line);
+  background: var(--white);
 }
 .gift-details > span {
   color: var(--muted);
   font-size: 0.875rem;
 }
 .gift-details strong {
-  font-size: 1.3rem;
+  font: 400 1.55rem var(--serif);
+  color: var(--green);
   overflow-wrap: anywhere;
 }
 .memories {
@@ -670,14 +749,48 @@ input[type="checkbox"] {
   overflow-wrap: anywhere;
 }
 
-.rsvp-section { text-align: center; background: var(--pale); }
+.rsvp-section {
+  position: relative;
+  text-align: center;
+  background: var(--pale);
+}
+.rsvp-section::before {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 1px;
+  margin: 0 auto var(--space-md);
+  background: #9dae92;
+}
 .rsvp-panel {
   max-width: 620px;
   margin: 36px auto 0;
-  padding: 38px;
+  padding: var(--space-lg);
   text-align: left;
   background: var(--white);
   border: 1px solid var(--line);
+  box-shadow: 0 18px 50px #183f320d;
+}
+.rsvp-panel label {
+  color: var(--green);
+  font-weight: 600;
+}
+.rsvp-panel input {
+  margin-top: 3px;
+  border-color: #94a895;
+}
+
+/* Content is visible by default; this progressive enhancement only runs with JS. */
+.reveal-enabled [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.55s ease-out,
+    transform 0.55s ease-out;
+}
+.reveal-enabled [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 .rsvp-panel .button-row { margin-top: 28px; }
 .rsvp-thanks { text-align: center; }
@@ -743,10 +856,14 @@ input[type="checkbox"] {
     display: none;
   }
   .hero {
-    min-height: 690px;
-    padding: 75px 28px 35px;
+    min-height: 640px;
+    padding: 64px 28px 32px;
     background-size: 100% 100%;
     background-position: center;
+  }
+  .hero::after {
+    inset: var(--space-sm);
+    border-color: color-mix(in srgb, var(--line) 45%, transparent);
   }
   .hero h1 {
     letter-spacing: -2px;
@@ -763,7 +880,7 @@ input[type="checkbox"] {
     margin-top: 40px;
   }
   .countdown {
-    gap: 22px;
+    gap: 18px;
   }
   .countdown div {
     min-width: 45px;
@@ -774,8 +891,11 @@ input[type="checkbox"] {
   .countdown span {
     font-size: 0.75rem;
   }
+  .countdown div + div::before {
+    left: -9px;
+  }
   .section {
-    padding: 70px 24px;
+    padding: 62px 24px;
   }
   .eyebrow {
     font-size: 0.75rem;
@@ -785,8 +905,13 @@ input[type="checkbox"] {
     grid-template-columns: 1fr;
   }
   .event-card {
-    min-height: 290px;
-    padding: 36px 22px;
+    min-height: 270px;
+    padding: 32px 22px;
+  }
+  .event-card::after {
+    width: 42px;
+    height: 52px;
+    opacity: 0.08;
   }
   .event-card + .event-card {
     border-left: 0;
@@ -797,9 +922,23 @@ input[type="checkbox"] {
     gap: 15px;
   }
   .calendar-band {
-    padding: 48px 26px;
+    padding: 42px 26px;
     flex-direction: column;
     align-items: flex-start;
+  }
+  .gifts::before,
+  .gifts::after {
+    width: 58px;
+    height: 95px;
+    opacity: 0.07;
+  }
+  .gift-details,
+  .rsvp-panel {
+    padding: 24px 20px;
+  }
+  .reveal-enabled [data-reveal] {
+    transform: translateY(8px);
+    transition-duration: 0.32s;
   }
   .calendar-band h2 {
     font-size: 2.5rem;
@@ -830,18 +969,13 @@ input[type="checkbox"] {
     scroll-behavior: auto;
   }
   * {
+    animation: none !important;
     transition: none !important;
   }
-  html.opening-active body > :not(.opening) {
-    animation: invitation-reveal 0.16s ease-out both;
-  }
-  .opening.is-opening,
-  .opening.is-opening .opening-card,
-  .opening.is-opening .opening-panel,
-  .opening.is-opening .opening-botanical,
-  .opening.is-opening .bow,
-  .opening.is-opening .opening-button-label {
-    animation: opening-dismiss 0.16s ease-out both;
+  .reveal-enabled [data-reveal],
+  .reveal-enabled [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
   }
 }
 
