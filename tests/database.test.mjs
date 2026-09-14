@@ -64,6 +64,10 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
     (await as("authenticated", other, "select * from public.guests")).length,
     0,
   );
+  assert.equal(
+    (await as("authenticated", other, "update public.guests set status='confirmed' returning id")).length,
+    0,
+  );
   await assert.rejects(
     () =>
       as(
@@ -79,6 +83,24 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
   );
   await db.exec(`update public.guests set credential_hash=encode(sha256(convert_to('INVITE-123','UTF8')),'hex') where name='Persona privada'`);
   const clientHash = "a".repeat(64);
+  for (const role of ["anon", "authenticated"])
+    await assert.rejects(
+      () => as(role, role === "authenticated" ? other : "", "select public.submit_guest_rsvp_with_proof(repeat('a',64),'Persona privada','confirmed',repeat('b',64))"),
+      /permission denied/,
+    );
+  assert.deepEqual(
+    (await db.query("select has_function_privilege('anon','public.submit_guest_rsvp_with_proof(text,text,text,text)','execute') anon,has_function_privilege('authenticated','public.submit_guest_rsvp_with_proof(text,text,text,text)','execute') authenticated,has_function_privilege('service_role','public.submit_guest_rsvp_with_proof(text,text,text,text)','execute') service")).rows[0],
+    { anon: false, authenticated: false, service: true },
+  );
+  const untouched = await db.query("select status,response_count from public.guests");
+  assert.equal(
+    (await db.query("select public.submit_guest_rsvp_with_proof(repeat('f',64),'Persona privada','confirmed',$1) as id", [clientHash])).rows[0].id,
+    null,
+  );
+  assert.deepEqual(
+    (await db.query("select status,response_count from public.guests")).rows,
+    untouched.rows,
+  );
   assert.equal(
     (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','confirmed',$1) as ok", [clientHash])).rows[0].ok,
     true,
