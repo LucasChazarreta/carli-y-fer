@@ -15,7 +15,9 @@
       content="17 de octubre de 2026 · Santiago del Estero"
     />
     <title>Carli y Fer · Nos casamos</title>
-    <script>document.documentElement.classList.add("opening-pending");</script>
+    <script>
+      document.documentElement.classList.add("opening-pending");
+    </script>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -28,11 +30,19 @@
     >
       <div class="opening-panel opening-panel-left" aria-hidden="true"></div>
       <div class="opening-panel opening-panel-right" aria-hidden="true"></div>
-      <span class="opening-botanical opening-botanical-top" aria-hidden="true"></span>
-      <span class="opening-botanical opening-botanical-bottom" aria-hidden="true"></span>
+      <span
+        class="opening-botanical opening-botanical-top"
+        aria-hidden="true"
+      ></span>
+      <span
+        class="opening-botanical opening-botanical-bottom"
+        aria-hidden="true"
+      ></span>
       <div class="opening-card">
         <p class="opening-kicker">Nuestra boda</p>
-        <h1 id="opening-title" class="opening-monogram">C <span>&amp;</span> F</h1>
+        <h1 id="opening-title" class="opening-monogram">
+          C <span>&amp;</span> F
+        </h1>
         <p id="opening-instruction" class="opening-date">17 · 10 · 2026</p>
         <button
           id="opening-button"
@@ -76,7 +86,11 @@
         <a href="#celebracion" class="button">Acompañanos</a
         ><span class="hero-foot">Una nueva historia, juntos.</span>
       </section>
-      <section class="countdown-section" aria-label="Cuenta regresiva" data-reveal>
+      <section
+        class="countdown-section"
+        aria-label="Cuenta regresiva"
+        data-reveal
+      >
         <p id="countdown-title" class="eyebrow">Cada vez falta menos</p>
         <div id="countdown" class="countdown">
           <div><strong>—</strong><span>días</span></div>
@@ -149,28 +163,44 @@
           >
         </div>
       </section>
-      <section id="confirmar" class="section rsvp-section" aria-labelledby="rsvp-title" data-reveal>
+      <section
+        id="confirmar"
+        class="section rsvp-section"
+        aria-labelledby="rsvp-title"
+        data-reveal
+      >
         <p class="eyebrow">Confirmación de asistencia</p>
         <h2 id="rsvp-title">¿Nos acompañás?</h2>
+        <div id="personal-welcome" hidden>
+          <p class="eyebrow">Esta invitación es especialmente para</p>
+          <h3 id="invitation-name"></h3>
+        </div>
         <p class="section-intro">
-          Ingresá los datos tal como figuran en tu invitación. Podés volver a
-          responder si más adelante necesitás cambiar tu decisión.
+          Cada persona puede elegir su respuesta. La invitación incluye
+          únicamente a las personas que aparecen aquí.
         </p>
         <div id="rsvp-panel" class="rsvp-panel">
-          <form id="rsvp-form">
-            <label>Nombre o grupo
-              <input name="name" required minlength="1" maxlength="120" autocomplete="name" />
-            </label>
-            <label>Código de la invitación
-              <input name="code" required minlength="1" maxlength="100" autocomplete="off"
-                autocapitalize="characters" spellcheck="false" />
-            </label>
-            <div class="button-row" aria-label="Elegí tu respuesta">
-              <button class="button" type="submit" name="response" value="confirmed">Sí, confirmo</button>
-              <button class="button outline" type="submit" name="response" value="declined">No podré asistir</button>
-            </div>
-            <p id="rsvp-status" class="form-result" role="status" aria-live="polite"></p>
+          <form id="rsvp-form" hidden>
+            <div id="rsvp-people"></div>
+            <button class="button" type="submit">Guardar respuestas</button>
           </form>
+          <p
+            id="rsvp-status"
+            class="form-result"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <div class="button-row">
+            <button id="refresh-rsvp" class="text-link" type="button">
+              Actualizar respuestas</button
+            ><a
+              id="confirmed-access"
+              class="text-link"
+              href="confirmados/"
+              hidden
+              >Ir a mi confirmación →</a
+            >
+          </div>
         </div>
       </section>
       <section id="agendar" class="calendar-band" data-reveal>
@@ -266,15 +296,6 @@
             required
             autocomplete="name" /></label
         ><label
-          >Código de invitados<input
-            name="code"
-            required
-            maxlength="100"
-            autocomplete="off"
-          /><small
-            >Lo recibís de la pareja junto con la invitación o el QR.</small
-          ></label
-        ><label
           >Foto o video<input
             name="file"
             type="file"
@@ -303,12 +324,6 @@
             required
             maxlength="80"
             autocomplete="name" /></label
-        ><label
-          >Código de invitados<input
-            name="code"
-            required
-            maxlength="100"
-            autocomplete="off" /></label
         ><label
           >Tu mensaje<textarea
             name="message"
@@ -340,12 +355,6 @@
             maxlength="80"
             autocomplete="name" /></label
         ><label
-          >Código de invitados<input
-            name="code"
-            required
-            maxlength="100"
-            autocomplete="off" /></label
-        ><label
           >Canción y artista<input
             name="message"
             required
@@ -367,10 +376,10 @@
         navegador.
       </p></noscript
     >
-        <audio id="background-music" loop preload="none">
+    <audio id="background-music" loop preload="none">
       <source src="assets/music/boda.mp3" type="audio/mpeg" />
     </audio>
-    
+
     <button
       id="music-toggle"
       class="music-toggle"

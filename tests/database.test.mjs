@@ -24,7 +24,8 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
   const admin = "11111111-1111-4111-8111-111111111111",
     other = "22222222-2222-4222-8222-222222222222";
   await db.exec(`insert into auth.users values('${admin}'),('${other}');insert into private.wedding_admins values('${admin}');
- insert into public.guests(name) values('Persona privada');
+ insert into public.invitations(id,display_name) values('33333333-3333-4333-8333-333333333333','Invitación privada');
+ insert into public.guests(name,invitation_id) values('Persona privada','33333333-3333-4333-8333-333333333333');
  insert into public.messages(kind,name,message,approved) values('message','Público','Aprobado',true),('message','Privado','Pendiente',false),('song','DJ','Canción',false);
  insert into storage.objects(bucket_id,name) values('wedding-memories','private.jpg');`);
   async function as(role, uid, query, params = []) {
@@ -64,9 +65,10 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
     (await as("authenticated", other, "select * from public.guests")).length,
     0,
   );
-  assert.equal(
-    (await as("authenticated", other, "update public.guests set status='confirmed' returning id")).length,
-    0,
+  await assert.rejects(
+    () =>
+      as("authenticated", other, "update public.guests set status='confirmed'"),
+    /permission denied/,
   );
   await assert.rejects(
     () =>
@@ -75,55 +77,12 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
         other,
         "insert into public.guests(name) values('intruso')",
       ),
-    /row-level security/,
+    /permission denied/,
   );
   assert.equal(
     (await as("authenticated", admin, "select * from public.guests")).length,
     1,
   );
-  await db.exec(`update public.guests set credential_hash=encode(sha256(convert_to('INVITE-123','UTF8')),'hex') where name='Persona privada'`);
-  const clientHash = "a".repeat(64);
-  for (const role of ["anon", "authenticated"])
-    await assert.rejects(
-      () => as(role, role === "authenticated" ? other : "", "select public.submit_guest_rsvp_with_proof(repeat('a',64),'Persona privada','confirmed',repeat('b',64))"),
-      /permission denied/,
-    );
-  assert.deepEqual(
-    (await db.query("select has_function_privilege('anon','public.submit_guest_rsvp_with_proof(text,text,text,text)','execute') anon,has_function_privilege('authenticated','public.submit_guest_rsvp_with_proof(text,text,text,text)','execute') authenticated,has_function_privilege('service_role','public.submit_guest_rsvp_with_proof(text,text,text,text)','execute') service")).rows[0],
-    { anon: false, authenticated: false, service: true },
-  );
-  const untouched = await db.query("select status,response_count from public.guests");
-  assert.equal(
-    (await db.query("select public.submit_guest_rsvp_with_proof(repeat('f',64),'Persona privada','confirmed',$1) as id", [clientHash])).rows[0].id,
-    null,
-  );
-  assert.deepEqual(
-    (await db.query("select status,response_count from public.guests")).rows,
-    untouched.rows,
-  );
-  assert.equal(
-    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','confirmed',$1) as ok", [clientHash])).rows[0].ok,
-    true,
-  );
-  // Repeating an answer is safe, and a later change updates only this credential.
-  assert.equal(
-    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','confirmed',$1) as ok", [clientHash])).rows[0].ok,
-    true,
-  );
-  assert.equal(
-    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Persona privada','declined',$1) as ok", [clientHash])).rows[0].ok,
-    true,
-  );
-  assert.equal(
-    (await db.query("select public.submit_guest_rsvp(encode(sha256(convert_to('INVITE-123','UTF8')),'hex'),'Nombre incorrecto','confirmed',$1) as ok", [clientHash])).rows[0].ok,
-    false,
-  );
-  const audited = (await as("authenticated", admin, "select status,response_first_at,response_updated_at,response_count,response_name from public.guests"))[0];
-  assert.equal(audited.status, "declined");
-  assert.equal(audited.response_count, 3);
-  assert.ok(audited.response_first_at);
-  assert.ok(audited.response_updated_at);
-  assert.equal(audited.response_name, "Persona privada");
   assert.equal(
     (await as("authenticated", admin, "select * from public.messages")).length,
     3,

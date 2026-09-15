@@ -1,3 +1,5 @@
+> Documento histórico de V1. La confirmación manual y el código compartido aquí descritos fueron sustituidos por V2. Para operar o desplegar, usar [V2-OPERACION.md](V2-OPERACION.md) y [V2-ARQUITECTURA.md](V2-ARQUITECTURA.md).
+
 # Decisiones y datos pendientes
 
 Fuente revisada: `Propuesta-Invitacion-Digital-Boda.pdf`, cuatro páginas, incluidos los casilleros elegidos.

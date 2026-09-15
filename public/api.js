@@ -41,13 +41,16 @@ async function request(
     );
   }
   const data = await response.json().catch(() => null);
-  if (!response.ok)
-    throw new Error(
+  if (!response.ok) {
+    const error = new Error(
       data?.error_description ||
         data?.error ||
         data?.message ||
         "No se pudo completar la operación.",
     );
+    error.status = response.status;
+    throw error;
+  }
   return data;
 }
 async function token() {
@@ -168,10 +171,23 @@ export const api = {
       raw: true,
     });
   },
-  async rsvp(name, code, response) {
+  async invitationAdmin(body) {
+    return request("/functions/v1/invitation-admin", {
+      method: "POST",
+      body,
+      token: await token(),
+    });
+  },
+  async resolveInvitation(token) {
     return request("/functions/v1/rsvp", {
       method: "POST",
-      body: { name, code, response },
+      body: { action: "resolve", token },
+    });
+  },
+  async rsvp(token, answer) {
+    return request("/functions/v1/rsvp", {
+      method: "POST",
+      body: { action: "submit", token, ...answer },
     });
   },
   async validateRsvpProof(proof) {

@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { googleFormURL, albumState, publicMemoriesURL } from "../public/album.js";
+import {
+  googleFormURL,
+  albumState,
+  publicMemoriesURL,
+} from "../public/album.js";
 const event = {
   showAlbum: true,
   albumProvider: "google_forms",
@@ -65,5 +69,7 @@ test("public memories URL is stable and strips every kind of private state", () 
     assert.equal(url.search, "");
   }
   assert.throws(() => publicMemoriesURL("http://wedding.example/?token=x"));
-  assert.throws(() => publicMemoriesURL("https://admin:secret@wedding.example/"));
+  assert.throws(() =>
+    publicMemoriesURL("https://admin:secret@wedding.example/"),
+  );
 });
