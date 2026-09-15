@@ -9,13 +9,21 @@
 - Pruebas HTTP contra Supabase real: resolver familia sin UUID internos; confirmación parcial; reintento idempotente; prueba auténtica/manipulada; solicitudes concurrentes (200 y 409); todos rechazados invalidan prueba; lectura anónima de tablas denegada; endpoint administrativo sin JWT denegado.
 - Datos de prueba temporales retirados. No se cargaron invitados reales.
 
-## Pendiente por bloqueo de publicación
+## Publicación y prueba en navegador
 
-La revisión automática rechazó el push a GitHub al considerar que faltaba autorización explícita para publicación externa. La rama `work/invitations-v2` existe localmente, no en GitHub. El frontend público sigue en la versión anterior; la validación visual final V2 en el dominio queda pendiente. El navegador de revisión tampoco puede abrir el servidor local (`ERR_BLOCKED_BY_CLIENT`). La prueba del panel autenticado se realizó con DOM/HTTP simulado; no se inventó ni restableció una contraseña del administrador real.
+- Publicación autorizada expresamente por el propietario. [PR #7](https://github.com/LucasChazarreta/carli-y-fer/pull/7) integrada en `main`, commit `f0fe77bb3a25ed5a46d31ccf6d6fd2d1ca4d93ed`.
+- [GitHub Pages: despliegue aprobado](https://github.com/LucasChazarreta/carli-y-fer/actions/runs/34925660073), incluidas las pruebas y comprobaciones del workflow. Frontend y backend V2 activos conjuntamente en https://boda-carli-fer.agentslucca.online/.
+- Navegador real: apertura de carta, música iniciada por interacción y página general que solicita el enlace personal para confirmar.
+- Invitación temporal de dos personas: una confirmada y otra pendiente; guardado comprobado en Supabase con contadores 1 y 0; redirección a `/confirmados/`, acceso validado y enlaces de canción, mensaje y QR público sin credenciales.
+- Canción enviada desde el formulario real, recibida en Supabase como sugerencia privada. Álbum enlazado al formulario de Google existente sin pedir el código anterior.
+- Invitación, personas y canción de prueba eliminadas al terminar; comprobado el rechazo posterior de la prueba de confirmación.
+- Acceso público del panel verificado en navegador. La creación, edición, recuperación de enlaces, revocación y regeneración del panel están cubiertas por las pruebas DOM/Edge/SQL.
 
-**Estado de transición:** el backend V2 está activo, pero el frontend todavía es anterior. El formulario RSVP anterior y la escritura directa del panel anterior no son compatibles con V2. `guest-submit` exige la prueba V2 por defecto. Se intentó restaurar temporalmente el handler anterior para evitar ese desfase, pero la revisión automática lo rechazó por volver al código compartido. No se ejecutó esa restauración ni se intentó eludir el bloqueo.
+## Límites de la validación y datos pendientes
 
-Siguiente paso: con autorización explícita, subir la rama, revisar/fusionar o publicar en `main` y esperar GitHub Pages. El workflow ejecuta tests y comprobaciones antes de publicar `public/`. Después comprobar visualmente el flujo en el dominio y el panel real cuando haya sesión administradora disponible.
+No había una sesión administradora disponible para recorrer el panel autenticado en el navegador real; no se inventó ni restableció la contraseña de la cuenta existente. La inspección visual se realizó en el navegador de escritorio disponible; no sustituye una prueba en dispositivos físicos.
+
+La pareja aún debe cargar sus invitados y completar alias/titular, vestimenta, WhatsApp y direcciones textuales según corresponda. El flyer continúa como entrega posterior acordada. El cierre efectivo del formulario externo depende de Google Forms, como se explica en `V2-OPERACION.md`.
 
 ## Asesor Supabase
 
