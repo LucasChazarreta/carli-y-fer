@@ -120,7 +120,10 @@ html.opening-pending .opening {
   border-radius: 60% 12% 60% 12%;
   transform-origin: right center;
 }
-.bow-left { left: 13px; transform: rotate(18deg); }
+.bow-left {
+  left: 13px;
+  transform: rotate(18deg);
+}
 .bow-right {
   right: 13px;
   transform: scaleX(-1) rotate(18deg);
@@ -141,8 +144,14 @@ html.opening-pending .opening {
   width: 50.1%;
   background: #f7f0df;
 }
-.opening-panel-left { left: 0; transform-origin: left center; }
-.opening-panel-right { right: 0; transform-origin: right center; }
+.opening-panel-left {
+  left: 0;
+  transform-origin: left center;
+}
+.opening-panel-right {
+  right: 0;
+  transform-origin: right center;
+}
 .opening-botanical {
   position: absolute;
   z-index: 4;
@@ -152,25 +161,90 @@ html.opening-pending .opening {
   background: url("assets/botanical-wedding-border.png") center/cover no-repeat;
   opacity: 0.72;
 }
-.opening-botanical-top { top: -55px; left: -35px; }
-.opening-botanical-bottom { right: -35px; bottom: -55px; transform: rotate(180deg); }
-.opening.is-opening .bow-left { animation: bow-left-release 0.5s ease-in both; }
-.opening.is-opening .bow-right { animation: bow-right-release 0.5s ease-in both; }
+.opening-botanical-top {
+  top: -55px;
+  left: -35px;
+}
+.opening-botanical-bottom {
+  right: -35px;
+  bottom: -55px;
+  transform: rotate(180deg);
+}
+.opening.is-opening .bow-left {
+  animation: bow-left-release 0.5s ease-in both;
+}
+.opening.is-opening .bow-right {
+  animation: bow-right-release 0.5s ease-in both;
+}
 .opening.is-opening .bow-knot,
-.opening.is-opening .opening-button-label { animation: bow-knot-release 0.4s 0.18s ease-in both; }
-.opening.is-opening .opening-card { animation: card-release 0.5s 0.42s ease-in both; }
-.opening.is-opening .opening-panel-left { animation: panel-left-open 0.85s 0.65s cubic-bezier(.65, 0, .35, 1) both; }
-.opening.is-opening .opening-panel-right { animation: panel-right-open 0.85s 0.65s cubic-bezier(.65, 0, .35, 1) both; }
-.opening.is-opening .opening-botanical { animation: bow-knot-release 0.45s 0.48s ease-in both; }
-.opening.is-opening { animation: opening-dismiss 0.35s 1.48s ease-out both; }
-@keyframes bow-left-release { to { opacity: 0; transform: translate(-80px, 18px) rotate(-20deg); } }
-@keyframes bow-right-release { to { opacity: 0; transform: translate(80px, 18px) scaleX(-1) rotate(-20deg); } }
-@keyframes bow-knot-release { to { opacity: 0; transform: translateY(18px) scale(.75); } }
-@keyframes card-release { to { opacity: 0; transform: scale(.97); } }
-@keyframes panel-left-open { to { transform: perspective(900px) rotateY(-16deg) translateX(-104%); } }
-@keyframes panel-right-open { to { transform: perspective(900px) rotateY(16deg) translateX(104%); } }
-@keyframes opening-dismiss { to { opacity: 0; visibility: hidden; } }
-@keyframes invitation-reveal { from { opacity: 0; visibility: visible; } to { opacity: 1; visibility: visible; } }
+.opening.is-opening .opening-button-label {
+  animation: bow-knot-release 0.4s 0.18s ease-in both;
+}
+.opening.is-opening .opening-card {
+  animation: card-release 0.5s 0.42s ease-in both;
+}
+.opening.is-opening .opening-panel-left {
+  animation: panel-left-open 0.85s 0.65s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.opening.is-opening .opening-panel-right {
+  animation: panel-right-open 0.85s 0.65s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.opening.is-opening .opening-botanical {
+  animation: bow-knot-release 0.45s 0.48s ease-in both;
+}
+.opening.is-opening {
+  animation: opening-dismiss 0.35s 1.48s ease-out both;
+}
+@keyframes bow-left-release {
+  to {
+    opacity: 0;
+    transform: translate(-80px, 18px) rotate(-20deg);
+  }
+}
+@keyframes bow-right-release {
+  to {
+    opacity: 0;
+    transform: translate(80px, 18px) scaleX(-1) rotate(-20deg);
+  }
+}
+@keyframes bow-knot-release {
+  to {
+    opacity: 0;
+    transform: translateY(18px) scale(0.75);
+  }
+}
+@keyframes card-release {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+@keyframes panel-left-open {
+  to {
+    transform: perspective(900px) rotateY(-16deg) translateX(-104%);
+  }
+}
+@keyframes panel-right-open {
+  to {
+    transform: perspective(900px) rotateY(16deg) translateX(104%);
+  }
+}
+@keyframes opening-dismiss {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes invitation-reveal {
+  from {
+    opacity: 0;
+    visibility: visible;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
 body {
   margin: 0;
   background: #fff;
@@ -406,7 +480,7 @@ select:focus-visible {
   background: var(--line);
 }
 .countdown strong {
-  font: 400 clamp(2.6rem, 5vw, 3.6rem)/1 var(--serif);
+  font: 400 clamp(2.6rem, 5vw, 3.6rem) / 1 var(--serif);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
   color: var(--green);
@@ -447,7 +521,8 @@ select:focus-visible {
   bottom: 18px;
   width: 58px;
   height: 74px;
-  background: url("assets/botanical-wedding-border.png") 8% 92% / 330px auto no-repeat;
+  background: url("assets/botanical-wedding-border.png") 8% 92% / 330px auto
+    no-repeat;
   opacity: 0.12;
   pointer-events: none;
 }
@@ -532,7 +607,8 @@ select:focus-visible {
   position: absolute;
   width: 120px;
   height: 170px;
-  background: url("assets/botanical-wedding-border.png") left center / 410px auto no-repeat;
+  background: url("assets/botanical-wedding-border.png") left center / 410px
+    auto no-repeat;
   opacity: 0.13;
   pointer-events: none;
 }
@@ -792,8 +868,12 @@ input[type="checkbox"] {
   opacity: 1;
   transform: translateY(0);
 }
-.rsvp-panel .button-row { margin-top: 28px; }
-.rsvp-thanks { text-align: center; }
+.rsvp-panel .button-row {
+  margin-top: 28px;
+}
+.rsvp-thanks {
+  text-align: center;
+}
 .toast {
   position: fixed;
   bottom: 20px;
@@ -1032,5 +1112,71 @@ input[type="checkbox"] {
     bottom: 14px;
     width: 48px;
     height: 48px;
+  }
+}
+#personal-welcome {
+  margin: 24px auto 30px;
+}
+#invitation-name {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--green);
+  margin: 10px 0;
+}
+.rsvp-person {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+  margin: 0 0 16px;
+  min-width: 0;
+}
+.rsvp-person legend {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.answer-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.answer-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 180px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.answer-options label:has(input:checked) {
+  background: #eaf1e8;
+  border-color: var(--green);
+}
+.answer-options input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--green);
+}
+#rsvp-form {
+  text-align: left;
+}
+#rsvp-form > .button {
+  display: block;
+  margin: 24px auto 0;
+}
+#rsvp-status {
+  min-height: 2em;
+}
+.rsvp-person:focus-within {
+  outline: 2px solid #63866d;
+  outline-offset: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .answer-options label {
+    transition: none;
   }
 }

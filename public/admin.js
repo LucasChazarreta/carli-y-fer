@@ -1,3 +1,4 @@
+import { initInvitations } from "./admin-invitations.js";
 import { api, configured } from "./api.js";
 import { initialWedding } from "./data.js";
 import { config } from "./config.js";
@@ -83,121 +84,16 @@ $("#logout").onclick = async () => {
   location.reload();
 };
 if (configured && api.hasSession()) action(enter);
+const invitationManager = initInvitations(confirmAction);
 async function loadGuests() {
-  guests = await api.privateRows("guests", "select=*&order=name.asc");
-  renderGuests();
+  return invitationManager.load();
 }
 function filteredGuests() {
-  const q = $("#guest-search").value.toLocaleLowerCase();
-  const status = $("#guest-filter").value;
-  const menu = $("#menu-filter").value.toLocaleLowerCase();
-  return guests.filter(
-    (g) =>
-      (g.name + " " + g.group_name).toLocaleLowerCase().includes(q) &&
-      (!status || g.status === status) &&
-      g.dietary.toLocaleLowerCase().includes(menu),
-  );
+  return invitationManager.filteredGuests();
 }
-function renderGuests() {
-  $("#guest-stats").innerHTML = [
-    ["Personas cargadas", guests.length],
-    ["Asisten", guests.filter((g) => g.status === "confirmed").length],
-    ["Pendientes", guests.filter((g) => g.status === "pending").length],
-    ["No asisten", guests.filter((g) => g.status === "declined").length],
-  ]
-    .map(
-      ([label, n]) =>
-        `<div class="stat"><strong>${n}</strong><span>${label}</span></div>`,
-    )
-    .join("");
-  const rows = filteredGuests();
-  $("#guest-empty").hidden = rows.length > 0;
-  $("#guest-empty").textContent = guests.length
-    ? "No hay personas con esos filtros."
-    : "Todavía no cargaron invitados.";
-  $("#guest-list").innerHTML = rows
-    .map(
-      (g) =>
-        `<tr><td>${h(g.name)}</td><td>${h(g.group_name) || "—"}</td><td><span class="tag ${h(g.status)}">${labels[g.status]}</span></td><td>${h(g.dietary) || "—"}</td><td>${h(formatDate(g.updated_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))}</td><td><button class="table-action" data-edit="${g.id}">Editar</button><button class="table-action danger" data-delete="${g.id}">Eliminar</button></td></tr>`,
-    )
-    .join("");
-}
-for (const id of ["guest-search", "guest-filter", "menu-filter"])
-  $("#" + id).addEventListener("input", renderGuests);
-function guestDialog(g = {}) {
-  const form = $("#guest-form");
-  form.reset();
-  for (const key of ["id", "name", "group_name", "dietary", "notes"])
-    form.elements[key].value = g[key] || "";
-  form.elements.status.value = g.status || "pending";
-  form.querySelector(".form-result").textContent = "";
-  $("#guest-dialog-title").textContent = g.id
-    ? "Editar persona"
-    : "Agregar persona";
-  $("#guest-dialog").showModal();
-}
-$("#new-guest").onclick = () => guestDialog();
-$("#refresh-guests").onclick = () => action(loadGuests);
-$("#guest-list").onclick = (e) =>
-  action(async () => {
-    const edit = e.target.closest("[data-edit]");
-    if (edit) guestDialog(guests.find((g) => g.id === edit.dataset.edit));
-    const del = e.target.closest("[data-delete]");
-    if (del && (await confirmAction("¿Eliminar a esta persona del listado?"))) {
-      await api.remove("guests", del.dataset.delete);
-      await loadGuests();
-    }
-  });
-$("#guest-form").onsubmit = async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const b = form.querySelector("button");
-  b.disabled = true;
-  try {
-    const data = Object.fromEntries(new FormData(form));
-    const id = data.id;
-    delete data.id;
-    data.name = data.name.trim();
-    if (!data.name) throw new Error("Escribí el nombre de la persona.");
-    await api.write("guests", data, id || null);
-    $("#guest-dialog").close();
-    await loadGuests();
-    notify("Persona guardada.");
-  } catch (err) {
-    form.querySelector(".form-result").textContent = err.message;
-  } finally {
-    b.disabled = false;
-  }
-};
 document
   .querySelectorAll("[data-close]")
   .forEach((b) => (b.onclick = () => b.closest("dialog").close()));
-$("#export-guests").onclick = () => {
-  const rows = filteredGuests();
-  download(
-    csvText([
-      [
-        "Nombre",
-        "Grupo",
-        "Respuesta",
-        "Alimentación",
-        "Observaciones",
-        "Actualizado",
-      ],
-      ...rows.map((g) => [
-        g.name,
-        g.group_name,
-        labels[g.status],
-        g.dietary,
-        g.notes,
-        g.updated_at,
-      ]),
-    ]),
-    "Carli-y-Fer-invitados.csv",
-    "text/csv;charset=utf-8",
-  );
-  notify("Se exportaron las personas que coinciden con los filtros.");
-};
 const editorFields = [
   ["Datos principales"],
   ["names", "Nombres", "text"],
@@ -416,7 +312,10 @@ $("#make-qr").onclick = () =>
     $("#qr-output").innerHTML = qrSVG;
     const svg = $("#qr-output svg");
     svg.setAttribute("role", "img");
-    svg.setAttribute("aria-label", "Código QR para abrir los recuerdos de Carli y Fer");
+    svg.setAttribute(
+      "aria-label",
+      "Código QR para abrir los recuerdos de Carli y Fer",
+    );
     qrSVG = svg.outerHTML;
     $("#download-qr").hidden = false;
   });

@@ -1,97 +1,283 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
-import ts from "typescript";
-
-test("RSVP Edge endpoint enforces the complete private confirmation contract", async () => {
-  const env = {
-    SUPABASE_URL: "https://test.supabase.co",
-    SUPABASE_SERVICE_ROLE_KEY: "server-only",
-    WEDDING_RATE_SALT: "long-test-rate-limit-salt",
-    WEDDING_RSVP_PROOF_SECRET: "a-test-proof-secret-that-is-longer-than-32-characters",
-    WEDDING_ALLOWED_ORIGINS: "https://wedding.example",
-  };
-  let handler;
-  globalThis.Deno = { env: { get: (key) => env[key] }, serve: (callback) => { handler = callback; } };
-  const originalFetch = globalThis.fetch;
-  const expectedHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("AB-CD"))), (n) => n.toString(16).padStart(2, "0")).join("");
-  const calls = [];
-  let guestStatus = "pending";
-  let successfulUpdates = 0;
-  globalThis.fetch = async (url, options = {}) => {
-    const call = { url: String(url), body: options.body ? JSON.parse(options.body) : null };
-    calls.push(call);
-    if (call.url.includes("/rpc/")) {
-      const matches = call.body.p_credential_hash === expectedHash && call.body.p_name === "Familia Pérez";
-      if (matches) {
-        guestStatus = call.body.p_status;
-        successfulUpdates++;
-      }
-      return new Response(JSON.stringify(matches ? "11111111-1111-4111-8111-111111111111" : null), { status: 200 });
-    }
-    const confirmed = guestStatus === "confirmed";
-    return new Response(JSON.stringify(confirmed ? [{ id: "11111111-1111-4111-8111-111111111111" }] : []), { status: 200 });
-  };
-  try {
-    const source = await fs.readFile(new URL("../supabase/functions/rsvp/index.ts", import.meta.url), "utf8");
-    const output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }, reportDiagnostics: true });
-    assert.equal(output.diagnostics.filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error).length, 0);
-    await import("data:text/javascript;base64," + Buffer.from(output.outputText).toString("base64"));
-    const request = (body, { method = "POST", origin = "https://wedding.example", headers = {} } = {}) => handler(new Request("https://test/functions/v1/rsvp", {
-      method,
-      headers: { origin, "content-type": "application/json", ...headers },
-      body: method === "GET" ? undefined : JSON.stringify(body),
-    }));
-    const answer = (response, extra = {}) => request({ name: "  Familia   Pérez ", code: " ab-cd ", response, ...extra });
-
-    assert.equal((await request({}, { origin: "https://evil.example" })).status, 403);
-    assert.equal((await request({}, { method: "GET" })).status, 405);
-    assert.equal((await request({}, { method: "OPTIONS" })).status, 204);
-    assert.equal(calls.length, 0);
-    for (const code of ["", "x".repeat(101)]) {
-      const malformed = await request({ name: "Familia Pérez", code, response: "confirmed" });
-      assert.equal(malformed.status, 400);
-      assert.match((await malformed.json()).error, /Revisá los datos/u);
-    }
-    assert.equal((await request({ name: "x".repeat(121), code: "AB-CD", response: "confirmed" })).status, 400);
-    assert.equal((await request({ name: "Familia Pérez", code: "AB-CD", response: "maybe" })).status, 400);
-    assert.equal((await request({}, { headers: { "content-length": "2049" } })).status, 400);
-    assert.equal(calls.length, 0);
-
-    const wrongCode = await request({ name: "Familia Pérez", code: "WRONG", response: "confirmed" });
-    const wrongName = await request({ name: "Otra familia", code: "AB-CD", response: "confirmed" });
-    assert.equal(wrongCode.status, 400);
-    assert.equal(wrongName.status, 400);
-    assert.equal((await wrongCode.json()).error, (await wrongName.json()).error, "name and code failures must not enumerate guests");
-    assert.equal(guestStatus, "pending");
-
-    const confirmed = await answer("confirmed", { guest_id: "22222222-2222-4222-8222-222222222222" });
-    assert.equal(confirmed.status, 200);
-    const confirmation = await confirmed.json();
-    assert.match(confirmation.proof, /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/u);
-    const rpc = calls.find((call) => call.url.includes("/rpc/") && call.body.p_credential_hash === expectedHash);
-    assert.equal("guest_id" in rpc.body, false, "a client cannot choose the updated guest identifier");
-    assert.equal(guestStatus, "confirmed");
-
-    assert.equal((await answer("confirmed")).status, 200, "duplicate confirmation is idempotently accepted");
-    assert.equal(guestStatus, "confirmed");
-    const declined = await answer("declined");
-    assert.equal(declined.status, 200);
-    assert.equal((await declined.json()).proof, undefined);
-    assert.equal(guestStatus, "declined");
-    assert.equal((await answer("confirmed")).status, 200);
-    assert.equal(guestStatus, "confirmed");
-    assert.equal(successfulUpdates, 4);
-
-    const validation = await request({ action: "validate", proof: confirmation.proof });
-    assert.equal(validation.status, 200);
-    assert.equal((await validation.json()).ok, true);
-    const tampered = confirmation.proof.slice(0, -1) + (confirmation.proof.endsWith("a") ? "b" : "a");
-    const rejected = await request({ action: "validate", proof: tampered });
-    assert.equal(rejected.status, 401);
-    assert.equal((await rejected.json()).error, "No se pudo verificar la confirmación.");
-  } finally {
+import { database, as, admin, loadEdge, edgeEnv } from "./helpers.mjs";
+test("V2 Edge integration: create, recover encrypted link, RSVP and confirmed guest submissions", async (t) => {
+  const originalFetch = globalThis.fetch,
+    db = await database();
+  t.after(async () => {
     globalThis.fetch = originalFetch;
     delete globalThis.Deno;
-  }
+    await db.close();
+  });
+  let forbidden = false,
+    rateAllowed = true;
+  const fetcher = async (url, options = {}) => {
+    if (String(url).endsWith("/auth/v1/user"))
+      return new Response("{}", { status: forbidden ? 401 : 200 });
+    const name = String(url).split("/rpc/")[1],
+      body = options.body ? JSON.parse(options.body) : {};
+    if (name === "consume_invitation_rate" && !rateAllowed)
+      return new Response("false");
+    if (name) {
+      try {
+        const keys = Object.keys(body),
+          values = keys.map((k) =>
+            typeof body[k] === "object" && body[k] !== null
+              ? JSON.stringify(body[k])
+              : body[k],
+          );
+        const sql = `select public.${name}(${keys.map((k, n) => `${k}=>$${n + 1}`).join(",")}) result`;
+        const rows = await as(
+          db,
+          options.headers.Authorization === "Bearer admin-jwt"
+            ? "authenticated"
+            : "service_role",
+          admin,
+          sql,
+          values,
+        );
+        return new Response(JSON.stringify(rows[0].result));
+      } catch (e) {
+        return new Response(JSON.stringify({ message: e.message }), {
+          status: 400,
+        });
+      }
+    }
+    return new Response("{}");
+  };
+  const adminHandler = await loadEdge(
+    "supabase/functions/invitation-admin/index.ts",
+    edgeEnv,
+    fetcher,
+  );
+  const rsvp = await loadEdge(
+    "supabase/functions/rsvp/index.ts",
+    edgeEnv,
+    fetcher,
+  );
+  const guest = await loadEdge(
+    "supabase/functions/guest-submit/index.ts",
+    edgeEnv,
+    fetcher,
+  );
+  const send = (handler, body, extra = {}) =>
+    handler(
+      new Request("https://test/functions", {
+        method: extra.method || "POST",
+        headers: {
+          origin: extra.origin || "https://wedding.example",
+          "content-type": "application/json",
+          ...(handler === adminHandler
+            ? { authorization: "Bearer admin-jwt" }
+            : {}),
+          ...extra.headers,
+        },
+        body: extra.method === "GET" ? undefined : JSON.stringify(body),
+      }),
+    );
+  let token, id, state, proof;
+  await t.test(
+    "admin-only creation generates random tokens and recoverable ciphertext",
+    async () => {
+      forbidden = true;
+      assert.equal(
+        (
+          await send(adminHandler, {
+            action: "save",
+            name: "Familia",
+            guests: [{ name: "Ana" }],
+          })
+        ).status,
+        403,
+      );
+      forbidden = false;
+      const result = await send(adminHandler, {
+        action: "save",
+        name: "Familia",
+        guests: [{ name: "Ana" }, { name: "Juan" }],
+      });
+      assert.equal(result.status, 200);
+      ({ token, id } = await result.json());
+      assert.match(token, /^[A-Za-z0-9_-]{43}$/);
+      const stored = (
+        await db.query("select * from private.invitation_credentials")
+      ).rows[0];
+      assert.ok(!JSON.stringify(stored).includes(token));
+      assert.equal(
+        (await (await send(adminHandler, { action: "link", id })).json()).token,
+        token,
+      );
+    },
+  );
+  await t.test(
+    "invalid, unrecognized and revoked tokens are indistinguishable; CORS and size limits work",
+    async () => {
+      const bad = await send(rsvp, { action: "resolve", token: "wrong" }),
+        unknown = await send(rsvp, {
+          action: "resolve",
+          token: "Z".repeat(43),
+        });
+      assert.equal(bad.status, 401);
+      assert.deepEqual(await bad.json(), await unknown.json());
+      assert.equal(
+        (await send(rsvp, {}, { origin: "https://evil.example" })).status,
+        403,
+      );
+      assert.equal((await send(rsvp, {}, { method: "GET" })).status, 405);
+      assert.equal((await send(rsvp, {}, { method: "OPTIONS" })).status, 204);
+      assert.equal(
+        (await send(rsvp, { padding: "x".repeat(66000) })).status,
+        413,
+      );
+      rateAllowed = false;
+      assert.equal(
+        (await send(rsvp, { action: "resolve", token })).status,
+        429,
+      );
+      rateAllowed = true;
+    },
+  );
+  await t.test(
+    "resolve exposes only this invitation and never internal guest IDs or notes",
+    async () => {
+      state = await (await send(rsvp, { action: "resolve", token })).json();
+      assert.equal(state.guests.length, 2);
+      assert.equal(state.displayName, "Familia");
+      assert.equal(state.id, undefined);
+      assert.equal(state.guests[0].id, undefined);
+      assert.equal(state.guests[0].notes, undefined);
+      assert.equal(state.proof, undefined);
+    },
+  );
+  await t.test(
+    "partial RSVP issues a proof; raw guest IDs and foreign selectors are rejected",
+    async () => {
+      const body = {
+        action: "submit",
+        token,
+        revision: state.revision,
+        requestId: crypto.randomUUID(),
+        answers: [{ key: state.guests[0].key, status: "confirmed" }],
+      };
+      assert.equal(
+        (
+          await send(rsvp, {
+            ...body,
+            answers: [{ guest_id: "other", status: "confirmed" }],
+          })
+        ).status,
+        400,
+      );
+      const result = await send(rsvp, body);
+      assert.equal(result.status, 200);
+      state = await result.json();
+      proof = state.proof;
+      assert.equal(
+        state.guests.filter((g) => g.status === "confirmed").length,
+        1,
+      );
+      assert.ok(proof);
+      assert.equal((await send(rsvp, body)).status, 200);
+      assert.equal(
+        (await send(rsvp, { action: "validate", proof })).status,
+        200,
+      );
+    },
+  );
+  await t.test(
+    "tampered and expired proofs cannot authorize access",
+    async () => {
+      const [payload, signature] = proof.split(".");
+      const bad =
+        payload + "." + (signature[0] === "A" ? "B" : "A") + signature.slice(1);
+      assert.equal(
+        (await send(rsvp, { action: "validate", proof: bad })).status,
+        401,
+      );
+      const now = Date.now;
+      Date.now = () => now() + 1900000;
+      try {
+        assert.equal(
+          (await send(rsvp, { action: "validate", proof })).status,
+          401,
+        );
+      } finally {
+        Date.now = now;
+      }
+    },
+  );
+  await t.test(
+    "songs and messages accept proof without global code; missing proof is rejected",
+    async () => {
+      const form = new FormData();
+      form.set("name", "Ana");
+      form.set("action", "song");
+      form.set("message", "Nuestra canción");
+      const req = () =>
+        new Request("https://test/functions/guest-submit", {
+          method: "POST",
+          headers: { origin: "https://wedding.example" },
+          body: form,
+        });
+      assert.equal((await guest(req())).status, 401);
+      form.set("proof", proof);
+      assert.equal((await guest(req())).status, 201);
+    },
+  );
+  await t.test(
+    "all declined invalidate confirmation access immediately",
+    async () => {
+      state = await (
+        await send(rsvp, {
+          action: "submit",
+          token,
+          revision: state.revision,
+          requestId: crypto.randomUUID(),
+          answers: state.guests.map((g) => ({
+            key: g.key,
+            status: "declined",
+          })),
+        })
+      ).json();
+      assert.equal(state.proof, undefined);
+      assert.equal(
+        (await send(rsvp, { action: "validate", proof })).status,
+        401,
+      );
+    },
+  );
+  await t.test(
+    "rotation changes link only on explicit request and revocation blocks it",
+    async () => {
+      const rotated = await (
+        await send(adminHandler, {
+          action: "rotate",
+          id,
+          revision: state.revision,
+        })
+      ).json();
+      assert.notEqual(rotated.token, token);
+      assert.equal(
+        (await send(rsvp, { action: "resolve", token })).status,
+        401,
+      );
+      token = rotated.token;
+      state = await (await send(rsvp, { action: "resolve", token })).json();
+      assert.equal(state.guests.length, 2);
+      assert.equal(
+        (
+          await send(adminHandler, {
+            action: "revoke",
+            id,
+            revision: state.revision,
+          })
+        ).status,
+        200,
+      );
+      assert.equal(
+        (await send(rsvp, { action: "resolve", token })).status,
+        401,
+      );
+    },
+  );
 });

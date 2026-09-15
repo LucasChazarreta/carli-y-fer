@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.rsvp]
 verify_jwt = false
+
+[functions.invitation-admin]
+verify_jwt = true
