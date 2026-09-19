@@ -24,7 +24,8 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
   const admin = "11111111-1111-4111-8111-111111111111",
     other = "22222222-2222-4222-8222-222222222222";
   await db.exec(`insert into auth.users values('${admin}'),('${other}');insert into private.wedding_admins values('${admin}');
- insert into public.guests(name) values('Persona privada');
+ insert into public.invitations(id,display_name) values('33333333-3333-4333-8333-333333333333','Invitación privada');
+ insert into public.guests(name,invitation_id) values('Persona privada','33333333-3333-4333-8333-333333333333');
  insert into public.messages(kind,name,message,approved) values('message','Público','Aprobado',true),('message','Privado','Pendiente',false),('song','DJ','Canción',false);
  insert into storage.objects(bucket_id,name) values('wedding-memories','private.jpg');`);
   async function as(role, uid, query, params = []) {
@@ -56,9 +57,18 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
     () => as("anon", "", "select * from public.guests"),
     /permission denied/,
   );
+  await assert.rejects(
+    () => as("anon", "", "update public.guests set status='confirmed'"),
+    /permission denied/,
+  );
   assert.equal(
     (await as("authenticated", other, "select * from public.guests")).length,
     0,
+  );
+  await assert.rejects(
+    () =>
+      as("authenticated", other, "update public.guests set status='confirmed'"),
+    /permission denied/,
   );
   await assert.rejects(
     () =>
@@ -67,7 +77,7 @@ test("Postgres schema enforces privacy, admin roles, publication conflicts, capa
         other,
         "insert into public.guests(name) values('intruso')",
       ),
-    /row-level security/,
+    /permission denied/,
   );
   assert.equal(
     (await as("authenticated", admin, "select * from public.guests")).length,

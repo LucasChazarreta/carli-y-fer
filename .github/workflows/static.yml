@@ -31,6 +31,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Validate V2 before publishing
+        run: |
+          npm ci
+          npm test
+          npm run check
+          npm run check:edge
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

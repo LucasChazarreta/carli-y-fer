@@ -1,3 +1,4 @@
+import { loadEdge } from "./helpers.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -6,6 +7,7 @@ test("guest endpoint validates access and real file headers, then reserves and s
   const env = {
     SUPABASE_URL: "https://test.supabase.co",
     SUPABASE_SERVICE_ROLE_KEY: "server-test-only",
+    WEDDING_ALLOW_LEGACY_CODE: "true",
     WEDDING_GUEST_CODE: "guest-code-test-12345",
     WEDDING_RATE_SALT: "test-random-salt-not-production",
     WEDDING_ALLOWED_ORIGINS: "https://wedding.example",
@@ -18,6 +20,8 @@ test("guest endpoint validates access and real file headers, then reserves and s
   const originalFetch = globalThis.fetch;
   let calls = [];
   globalThis.fetch = async (url, options) => {
+    if (String(url).includes("consume_invitation_rate"))
+      return new Response("true");
     calls.push({ url: String(url), options });
     return new Response(JSON.stringify({}), {
       status: 200,
@@ -25,26 +29,10 @@ test("guest endpoint validates access and real file headers, then reserves and s
     });
   };
   try {
-    const source = await fs.readFile(
-      new URL("../supabase/functions/guest-submit/index.ts", import.meta.url),
-      "utf8",
-    );
-    const output = ts.transpileModule(source, {
-      compilerOptions: {
-        target: ts.ScriptTarget.ES2022,
-        module: ts.ModuleKind.ESNext,
-      },
-      reportDiagnostics: true,
-    });
-    assert.equal(
-      output.diagnostics.filter(
-        (d) => d.category === ts.DiagnosticCategory.Error,
-      ).length,
-      0,
-    );
-    await import(
-      "data:text/javascript;base64," +
-        Buffer.from(output.outputText).toString("base64")
+    handler = await loadEdge(
+      "supabase/functions/guest-submit/index.ts",
+      env,
+      globalThis.fetch,
     );
     const submit = async ({
       code = env.WEDDING_GUEST_CODE,
@@ -72,7 +60,7 @@ test("guest endpoint validates access and real file headers, then reserves and s
       403,
     );
     assert.equal(calls.length, 0);
-    assert.equal((await submit({ code: "wrong-code" })).status, 403);
+    assert.equal((await submit({ code: "wrong-code" })).status, 401);
     assert.equal(calls.length, 0);
     const fake = new File(["<html>not a JPEG</html>"], "photo.jpg", {
       type: "image/jpeg",

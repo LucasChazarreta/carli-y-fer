@@ -15,10 +15,48 @@
       content="17 de octubre de 2026 · Santiago del Estero"
     />
     <title>Carli y Fer · Nos casamos</title>
+    <script>
+      document.documentElement.classList.add("opening-pending");
+    </script>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <section
+      id="opening"
+      class="opening"
+      aria-labelledby="opening-title"
+      aria-describedby="opening-instruction"
+    >
+      <div class="opening-panel opening-panel-left" aria-hidden="true"></div>
+      <div class="opening-panel opening-panel-right" aria-hidden="true"></div>
+      <span
+        class="opening-botanical opening-botanical-top"
+        aria-hidden="true"
+      ></span>
+      <span
+        class="opening-botanical opening-botanical-bottom"
+        aria-hidden="true"
+      ></span>
+      <div class="opening-card">
+        <p class="opening-kicker">Nuestra boda</p>
+        <h1 id="opening-title" class="opening-monogram">
+          C <span>&amp;</span> F
+        </h1>
+        <p id="opening-instruction" class="opening-date">17 · 10 · 2026</p>
+        <button
+          id="opening-button"
+          class="opening-button"
+          type="button"
+          aria-label="Abrir invitación de Carli y Fer"
+        >
+          <span class="bow bow-left" aria-hidden="true"></span>
+          <span class="bow bow-knot" aria-hidden="true"></span>
+          <span class="bow bow-right" aria-hidden="true"></span>
+          <span class="opening-button-label">Abrir invitación</span>
+        </button>
+      </div>
+    </section>
     <a class="skip" href="#celebracion">Saltar al contenido</a>
     <div id="preview-banner" class="preview-banner" hidden>
       Vista previa · todavía no se reciben mensajes ni archivos.
@@ -35,9 +73,9 @@
       <a class="date-link" href="#agendar">17.10.26</a>
     </header>
     <main>
-      <section id="inicio" class="hero">
+      <section id="inicio" class="hero" data-reveal>
         <p class="eyebrow">¡Nos casamos!</p>
-        <h1 id="couple-names">Carli <span>y</span> Fer</h1>
+        <h1 id="couple-names" tabindex="-1">Carli <span>y</span> Fer</h1>
         <div class="hero-rule"></div>
         <p class="hero-date" id="wedding-date">17 de octubre de 2026</p>
         <p class="city" data-text="city">Santiago del Estero</p>
@@ -48,7 +86,11 @@
         <a href="#celebracion" class="button">Acompañanos</a
         ><span class="hero-foot">Una nueva historia, juntos.</span>
       </section>
-      <section class="countdown-section" aria-label="Cuenta regresiva">
+      <section
+        class="countdown-section"
+        aria-label="Cuenta regresiva"
+        data-reveal
+      >
         <p id="countdown-title" class="eyebrow">Cada vez falta menos</p>
         <div id="countdown" class="countdown">
           <div><strong>—</strong><span>días</span></div>
@@ -57,14 +99,14 @@
           <div><strong>—</strong><span>segundos</span></div>
         </div>
       </section>
-      <section id="celebracion" class="section celebration">
+      <section id="celebracion" class="section celebration" data-reveal>
         <p class="eyebrow">El gran día</p>
         <h2>Un sí. Mil recuerdos.</h2>
         <p class="section-intro">
           Te esperamos para celebrar el comienzo de esta nueva etapa.
         </p>
         <div class="event-grid">
-          <article class="event-card">
+          <article class="event-card ceremony-card" data-reveal>
             <span class="event-number">01</span>
             <p class="eyebrow">La ceremonia</p>
             <h3 data-text="ceremonyName">Oratorio Don Bosco</h3>
@@ -79,7 +121,7 @@
               >Cómo llegar <span aria-hidden="true">↗</span></a
             >
           </article>
-          <article class="event-card">
+          <article class="event-card party-card" data-reveal>
             <span class="event-number">02</span>
             <p class="eyebrow">La fiesta</p>
             <h3 data-text="partyName">Finca La Sureña</h3>
@@ -121,7 +163,47 @@
           >
         </div>
       </section>
-      <section id="agendar" class="calendar-band">
+      <section
+        id="confirmar"
+        class="section rsvp-section"
+        aria-labelledby="rsvp-title"
+        data-reveal
+      >
+        <p class="eyebrow">Confirmación de asistencia</p>
+        <h2 id="rsvp-title">¿Nos acompañás?</h2>
+        <div id="personal-welcome" hidden>
+          <p class="eyebrow">Esta invitación es especialmente para</p>
+          <h3 id="invitation-name"></h3>
+        </div>
+        <p class="section-intro">
+          Cada persona puede elegir su respuesta. La invitación incluye
+          únicamente a las personas que aparecen aquí.
+        </p>
+        <div id="rsvp-panel" class="rsvp-panel">
+          <form id="rsvp-form" hidden>
+            <div id="rsvp-people"></div>
+            <button class="button" type="submit">Guardar respuestas</button>
+          </form>
+          <p
+            id="rsvp-status"
+            class="form-result"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <div class="button-row">
+            <button id="refresh-rsvp" class="text-link" type="button">
+              Actualizar respuestas</button
+            ><a
+              id="confirmed-access"
+              class="text-link"
+              href="confirmados/"
+              hidden
+              >Ir a mi confirmación →</a
+            >
+          </div>
+        </div>
+      </section>
+      <section id="agendar" class="calendar-band" data-reveal>
         <div>
           <p class="eyebrow">Reservá la fecha</p>
           <h2>Nos vemos en octubre.</h2>
@@ -131,7 +213,7 @@
           Agendar la boda <span aria-hidden="true">＋</span>
         </button>
       </section>
-      <section id="regalos" class="section gifts" hidden>
+      <section id="regalos" class="section gifts" hidden data-reveal>
         <p class="eyebrow">Para nuestra nueva etapa</p>
         <h2>El mejor regalo es compartirlo.</h2>
         <p class="section-intro" data-text="giftMessage"></p>
@@ -141,7 +223,7 @@
           ><button id="copy-alias" class="text-link">Copiar alias</button>
         </div>
       </section>
-      <section id="recuerdos" class="section memories">
+      <section id="recuerdos" class="section memories" data-reveal>
         <div class="memories-copy">
           <p class="eyebrow">La boda, a través de tus ojos</p>
           <h2>Ese momento<br />que solo vos viste.</h2>
@@ -165,7 +247,7 @@
           <span class="small">Carli y Fer · 2026</span>
         </div>
       </section>
-      <section id="mensajes" class="section messages">
+      <section id="mensajes" class="section messages" data-reveal>
         <p class="eyebrow">Lo lindo también se escribe</p>
         <h2>Palabras y canciones para celebrar.</h2>
         <p class="section-intro">
@@ -214,15 +296,6 @@
             required
             autocomplete="name" /></label
         ><label
-          >Código de invitados<input
-            name="code"
-            required
-            maxlength="100"
-            autocomplete="off"
-          /><small
-            >Lo recibís de la pareja junto con la invitación o el QR.</small
-          ></label
-        ><label
           >Foto o video<input
             name="file"
             type="file"
@@ -251,12 +324,6 @@
             required
             maxlength="80"
             autocomplete="name" /></label
-        ><label
-          >Código de invitados<input
-            name="code"
-            required
-            maxlength="100"
-            autocomplete="off" /></label
         ><label
           >Tu mensaje<textarea
             name="message"
@@ -288,12 +355,6 @@
             maxlength="80"
             autocomplete="name" /></label
         ><label
-          >Código de invitados<input
-            name="code"
-            required
-            maxlength="100"
-            autocomplete="off" /></label
-        ><label
           >Canción y artista<input
             name="message"
             required
@@ -315,6 +376,22 @@
         navegador.
       </p></noscript
     >
+    <audio id="background-music" loop preload="none">
+      <source src="assets/music/boda.mp3" type="audio/mpeg" />
+    </audio>
+
+    <button
+      id="music-toggle"
+      class="music-toggle"
+      type="button"
+      aria-label="Reproducir música"
+      title="Reproducir música"
+    >
+      ♫
+    </button>
     <script type="module" src="app.js"></script>
+    <script type="module" src="opening.js"></script>
+    <script type="module" src="rsvp.js"></script>
+    <script type="module" src="reveal.js"></script>
   </body>
 </html>

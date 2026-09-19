@@ -1,3 +1,4 @@
+import { validateProof, rate, ensureReady } from "../_shared/security.ts";
 // Deploy as guest-submit with verify_jwt=false. Shared guest code, validation,
 // server-side quota reservations and RLS protect the guest write surface.
 const base = Deno.env.get("SUPABASE_URL")!;
@@ -95,19 +96,21 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST")
     return reply({ error: "Método no permitido." }, 405);
-  if (!secret || secret.length < 12 || !salt || !base || !serviceKey)
+  if (!salt || salt.length < 16 || !base || !serviceKey)
     return reply({ error: "Los envíos todavía no están habilitados." }, 503);
   let id: string | null = null;
   let storedPath: string | null = null;
   let metadataSaved = false;
   try {
+    ensureReady();
+    await rate(req);
     const declared = Number(req.headers.get("content-length"));
     if (declared > 27 * 1024 * 1024)
       return reply({ error: "Archivo demasiado grande." }, 413);
     // Bound the body even when Content-Length is absent or inaccurate.
     const reader = req.body?.getReader();
     if (!reader) throw new Error("Envío vacío.");
-    const chunks: Uint8Array[] = [];
+    const chunks: Uint8Array<ArrayBuffer>[] = [];
     let length = 0;
     while (true) {
       const { done, value } = await reader.read();
@@ -117,14 +120,23 @@ Deno.serve(async (req: Request) => {
         await reader.cancel();
         return reply({ error: "Archivo demasiado grande." }, 413);
       }
-      chunks.push(value);
+      chunks.push(new Uint8Array(value));
     }
     const form = await new Response(new Blob(chunks), {
       headers: { "Content-Type": req.headers.get("content-type") || "" },
     }).formData();
     const code = String(form.get("code") || "").trim();
-    if (!(await matches(code, secret)))
-      return reply({ error: "Revisá el código de invitados." }, 403);
+    const proof = form.get("proof");
+    if (proof) await validateProof(proof);
+    else if (
+      Deno.env.get("WEDDING_ALLOW_LEGACY_CODE") !== "true" ||
+      !secret ||
+      !(await matches(code, secret))
+    )
+      return reply(
+        { error: "Abrí tu invitación y confirmá asistencia para continuar." },
+        401,
+      );
     const kind = String(form.get("action") || "");
     const name = String(form.get("name") || "").trim();
     if (
@@ -233,7 +245,9 @@ Deno.serve(async (req: Request) => {
             ? error.message
             : "No se pudo completar el envío.",
       },
-      400,
+      error && typeof error === "object" && "status" in error
+        ? Number(error.status)
+        : 400,
     );
   }
 });

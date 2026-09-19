@@ -8,7 +8,7 @@ export const initialWedding = {
   partyAt: "2026-10-17T22:00:00-03:00",
   ceremonyName: "Oratorio Don Bosco",
   ceremonyAddress: "",
-  ceremonyMap: "",
+  ceremonyMap: "https://goo.su/dLQSOD",
   partyName: "Finca La Sureña",
   partyAddress: "",
   partyMap: "https://goo.su/6zn23",

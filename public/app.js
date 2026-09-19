@@ -1,3 +1,4 @@
+import { invitationToken, currentProof } from "./invitation-session.js";
 import { initialWedding } from "./data.js";
 import { api, configured } from "./api.js";
 import { albumState } from "./album.js";
@@ -13,16 +14,15 @@ import {
 let wedding = { ...initialWedding };
 const params = new URLSearchParams(location.search);
 const isDraft = params.has("preview");
-const fragment = new URLSearchParams(location.hash.slice(1));
-let guestCode = fragment.get("codigo") || "";
-if (guestCode) {
-  history.replaceState(
-    null,
-    "",
-    location.pathname + location.search + "#recuerdos",
-  );
-  document.querySelector("#album-dialog").showModal();
-}
+invitationToken();
+const invitationAction =
+  location.hash === "#mensaje"
+    ? "message-dialog"
+    : location.hash === "#cancion"
+      ? "song-dialog"
+      : location.hash === "#recuerdos"
+        ? "album-dialog"
+        : "";
 function render() {
   document
     .querySelectorAll("[data-text]")
@@ -121,6 +121,10 @@ function updateCountdown() {
       "Llegó nuestro gran día";
 }
 render();
+if (invitationAction) {
+  if (invitationAction === "album-dialog") renderAlbum();
+  document.getElementById(invitationAction).showModal();
+}
 setInterval(updateCountdown, 1000);
 document.querySelector("#preview-banner").hidden = configured && !isDraft;
 document.querySelectorAll("[data-open]").forEach((button) =>
@@ -134,15 +138,6 @@ document
   .forEach((button) =>
     button.addEventListener("click", () => button.closest("dialog").close()),
   );
-document.querySelectorAll('input[name="code"]').forEach((input) => {
-  input.value = guestCode;
-  input.addEventListener("input", () => {
-    guestCode = input.value;
-    document.querySelectorAll('input[name="code"]').forEach((other) => {
-      if (other !== input) other.value = guestCode;
-    });
-  });
-});
 document.querySelector("#calendar-download").addEventListener("click", () => {
   download(
     calendarFile(wedding),
@@ -175,7 +170,14 @@ for (const id of ["album-form", "message-form", "song-form"]) {
         "Esta es una vista previa. Todavía no se reciben envíos.";
       return;
     }
+    const proof = currentProof();
+    if (!proof) {
+      result.textContent =
+        "Abrí tu enlace personal y confirmá asistencia para continuar.";
+      return;
+    }
     const data = new FormData(form);
+    data.set("proof", proof);
     const file = data.get("file");
     if (file instanceof File) {
       const limit = file.type.startsWith("video/") ? 25 : 8;
@@ -200,7 +202,6 @@ for (const id of ["album-form", "message-form", "song-form"]) {
           ? "¡Gracias! Ya sumamos tu sugerencia."
           : "¡Gracias! La pareja revisará tu mensaje antes de mostrarlo.";
       form.reset();
-      form.elements.code.value = guestCode;
     } catch (error) {
       result.textContent = error.message;
     } finally {
@@ -257,3 +258,56 @@ async function hydrate() {
   }
 }
 void hydrate();
+
+const backgroundMusic = document.querySelector("#background-music");
+const musicToggle = document.querySelector("#music-toggle");
+
+function updateMusicButton() {
+  const playing = !backgroundMusic.paused;
+
+  musicToggle.classList.toggle("is-playing", playing);
+
+  musicToggle.textContent = playing ? "❚❚" : "♫";
+
+  musicToggle.setAttribute(
+    "aria-label",
+    playing ? "Pausar música" : "Reproducir música",
+  );
+
+  musicToggle.title = playing ? "Pausar música" : "Reproducir música";
+}
+
+async function playMusicSafely() {
+  if (!backgroundMusic.paused) return;
+
+  try {
+    await backgroundMusic.play();
+    updateMusicButton();
+    return true;
+  } catch {
+    // Keep the manual control visible and usable if autoplay is rejected.
+    musicToggle.hidden = false;
+    updateMusicButton();
+    return false;
+  }
+}
+
+export function tryPlayMusic() {
+  return playMusicSafely();
+}
+
+musicToggle.addEventListener("click", async (event) => {
+  event.stopPropagation();
+
+  if (backgroundMusic.paused) {
+    await playMusicSafely();
+  } else {
+    backgroundMusic.pause();
+    updateMusicButton();
+  }
+});
+
+backgroundMusic.addEventListener("play", updateMusicButton);
+backgroundMusic.addEventListener("pause", updateMusicButton);
+
+updateMusicButton();

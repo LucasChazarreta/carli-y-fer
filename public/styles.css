@@ -6,6 +6,11 @@
   --pale: #f3f6f1;
   --line: #d5dfd4;
   --white: #fff;
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 28px;
+  --space-lg: 48px;
+  --space-xl: 100px;
   --serif: Georgia, "Times New Roman", serif;
   --sans: Arial, Helvetica, sans-serif;
   color-scheme: light;
@@ -16,6 +21,229 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
+}
+html.opening-pending,
+html.opening-pending body {
+  overflow: hidden;
+}
+html.opening-pending body > :not(.opening) {
+  opacity: 0;
+  visibility: hidden;
+}
+html.opening-pending .opening {
+  opacity: 1;
+  visibility: visible;
+}
+html.opening-active body > :not(.opening) {
+  animation: invitation-reveal 0.55s 1.45s ease-out both;
+}
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: #f7f0df;
+}
+html.opening-pending .opening {
+  display: grid;
+}
+.opening-card {
+  position: relative;
+  z-index: 3;
+  width: min(78vw, 520px);
+  min-height: min(68vh, 590px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 30px;
+  border: 1px solid #a5ad8d;
+  background: #fffdf6;
+  color: var(--green);
+  text-align: center;
+  box-shadow: 0 18px 45px #314c3924;
+}
+.opening-kicker,
+.opening-date {
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.opening-monogram {
+  margin: 24px 0;
+  font-size: clamp(4.5rem, 12vw, 7.5rem);
+  letter-spacing: -0.08em;
+}
+.opening-monogram span {
+  font-size: 0.62em;
+  font-style: italic;
+}
+.opening-button {
+  position: relative;
+  width: 184px;
+  height: 82px;
+  margin-top: 58px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--green);
+}
+.opening-button:focus-visible {
+  outline: 4px solid #57713f;
+  outline-offset: 8px;
+  border-radius: 4px;
+}
+.opening-button-label {
+  position: absolute;
+  top: 88px;
+  left: 50%;
+  width: max-content;
+  transform: translateX(-50%);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.bow {
+  position: absolute;
+  top: 9px;
+  display: block;
+  background: #6c8257;
+}
+.bow-left,
+.bow-right {
+  width: 76px;
+  height: 52px;
+  border-radius: 60% 12% 60% 12%;
+  transform-origin: right center;
+}
+.bow-left {
+  left: 13px;
+  transform: rotate(18deg);
+}
+.bow-right {
+  right: 13px;
+  transform: scaleX(-1) rotate(18deg);
+  transform-origin: left center;
+}
+.bow-knot {
+  z-index: 2;
+  top: 22px;
+  left: 76px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.opening-panel {
+  position: absolute;
+  z-index: 2;
+  inset-block: 0;
+  width: 50.1%;
+  background: #f7f0df;
+}
+.opening-panel-left {
+  left: 0;
+  transform-origin: left center;
+}
+.opening-panel-right {
+  right: 0;
+  transform-origin: right center;
+}
+.opening-botanical {
+  position: absolute;
+  z-index: 4;
+  width: 210px;
+  height: 290px;
+  pointer-events: none;
+  background: url("assets/botanical-wedding-border.png") center/cover no-repeat;
+  opacity: 0.72;
+}
+.opening-botanical-top {
+  top: -55px;
+  left: -35px;
+}
+.opening-botanical-bottom {
+  right: -35px;
+  bottom: -55px;
+  transform: rotate(180deg);
+}
+.opening.is-opening .bow-left {
+  animation: bow-left-release 0.5s ease-in both;
+}
+.opening.is-opening .bow-right {
+  animation: bow-right-release 0.5s ease-in both;
+}
+.opening.is-opening .bow-knot,
+.opening.is-opening .opening-button-label {
+  animation: bow-knot-release 0.4s 0.18s ease-in both;
+}
+.opening.is-opening .opening-card {
+  animation: card-release 0.5s 0.42s ease-in both;
+}
+.opening.is-opening .opening-panel-left {
+  animation: panel-left-open 0.85s 0.65s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.opening.is-opening .opening-panel-right {
+  animation: panel-right-open 0.85s 0.65s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.opening.is-opening .opening-botanical {
+  animation: bow-knot-release 0.45s 0.48s ease-in both;
+}
+.opening.is-opening {
+  animation: opening-dismiss 0.35s 1.48s ease-out both;
+}
+@keyframes bow-left-release {
+  to {
+    opacity: 0;
+    transform: translate(-80px, 18px) rotate(-20deg);
+  }
+}
+@keyframes bow-right-release {
+  to {
+    opacity: 0;
+    transform: translate(80px, 18px) scaleX(-1) rotate(-20deg);
+  }
+}
+@keyframes bow-knot-release {
+  to {
+    opacity: 0;
+    transform: translateY(18px) scale(0.75);
+  }
+}
+@keyframes card-release {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+@keyframes panel-left-open {
+  to {
+    transform: perspective(900px) rotateY(-16deg) translateX(-104%);
+  }
+}
+@keyframes panel-right-open {
+  to {
+    transform: perspective(900px) rotateY(16deg) translateX(104%);
+  }
+}
+@keyframes opening-dismiss {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes invitation-reveal {
+  from {
+    opacity: 0;
+    visibility: visible;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 body {
   margin: 0;
@@ -135,6 +363,17 @@ select:focus-visible {
   background: white url("assets/botanical-wedding-border.png") center/cover
     no-repeat;
 }
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: var(--space-md);
+  border: 1px solid color-mix(in srgb, var(--line) 68%, transparent);
+  pointer-events: none;
+}
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 3px;
@@ -145,7 +384,9 @@ select:focus-visible {
 .hero h1 {
   font-size: clamp(4rem, 10.5vw, 8rem);
   letter-spacing: -4px;
-  line-height: 1.15;
+  line-height: 0.98;
+  text-wrap: balance;
+  color: var(--green);
 }
 .hero h1 span {
   font-size: 0.65em;
@@ -224,22 +465,36 @@ select:focus-visible {
   gap: 60px;
 }
 .countdown div {
+  position: relative;
   min-width: 65px;
   display: flex;
   flex-direction: column;
 }
+.countdown div + div::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 7px;
+  left: -30px;
+  width: 1px;
+  background: var(--line);
+}
 .countdown strong {
-  font: 400 2.6rem var(--serif);
+  font: 400 clamp(2.6rem, 5vw, 3.6rem) / 1 var(--serif);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  color: var(--green);
 }
 .countdown span {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: var(--space-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 .section {
   max-width: 1120px;
-  padding: 100px 36px;
+  padding: var(--space-xl) 36px;
   margin: auto;
   text-align: center;
 }
@@ -258,6 +513,24 @@ select:focus-visible {
   position: relative;
   min-height: 320px;
   padding: 46px 25px;
+}
+.event-card::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  width: 58px;
+  height: 74px;
+  background: url("assets/botanical-wedding-border.png") 8% 92% / 330px auto
+    no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.ceremony-card {
+  background: var(--white);
+}
+.party-card {
+  background: var(--pale);
 }
 .event-card + .event-card {
   border-left: 1px solid var(--line);
@@ -323,21 +596,49 @@ select:focus-visible {
   flex-shrink: 0;
 }
 .gifts {
+  position: relative;
   border-bottom: 1px solid var(--line);
+  background: linear-gradient(90deg, transparent, var(--pale) 50%, transparent);
+  overflow: hidden;
+}
+.gifts::before,
+.gifts::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 170px;
+  background: url("assets/botanical-wedding-border.png") left center / 410px
+    auto no-repeat;
+  opacity: 0.13;
+  pointer-events: none;
+}
+.gifts::before {
+  left: 0;
+  bottom: -32px;
+}
+.gifts::after {
+  right: 0;
+  top: -32px;
+  transform: rotate(180deg);
 }
 .gift-details {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 28px auto 0;
+  margin: var(--space-md) auto 0;
+  width: min(100%, 430px);
+  padding: var(--space-md);
   align-items: center;
+  border: 1px solid var(--line);
+  background: var(--white);
 }
 .gift-details > span {
   color: var(--muted);
   font-size: 0.875rem;
 }
 .gift-details strong {
-  font-size: 1.3rem;
+  font: 400 1.55rem var(--serif);
+  color: var(--green);
   overflow-wrap: anywhere;
 }
 .memories {
@@ -523,6 +824,56 @@ input[type="checkbox"] {
   font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
+
+.rsvp-section {
+  position: relative;
+  text-align: center;
+  background: var(--pale);
+}
+.rsvp-section::before {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 1px;
+  margin: 0 auto var(--space-md);
+  background: #9dae92;
+}
+.rsvp-panel {
+  max-width: 620px;
+  margin: 36px auto 0;
+  padding: var(--space-lg);
+  text-align: left;
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px #183f320d;
+}
+.rsvp-panel label {
+  color: var(--green);
+  font-weight: 600;
+}
+.rsvp-panel input {
+  margin-top: 3px;
+  border-color: #94a895;
+}
+
+/* Content is visible by default; this progressive enhancement only runs with JS. */
+.reveal-enabled [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.55s ease-out,
+    transform 0.55s ease-out;
+}
+.reveal-enabled [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.rsvp-panel .button-row {
+  margin-top: 28px;
+}
+.rsvp-thanks {
+  text-align: center;
+}
 .toast {
   position: fixed;
   bottom: 20px;
@@ -550,6 +901,29 @@ input[type="checkbox"] {
   }
 }
 @media (max-width: 700px) {
+  .opening-card {
+    width: min(84vw, 420px);
+    min-height: min(64vh, 530px);
+    padding: 36px 20px;
+  }
+  .opening-monogram {
+    font-size: clamp(4rem, 22vw, 6rem);
+  }
+  .opening-button {
+    margin-top: 46px;
+    transform: scale(0.9);
+    transform-origin: center top;
+  }
+  .opening-botanical {
+    width: 150px;
+    height: 220px;
+  }
+  .opening-panel-left {
+    transform-origin: left 45%;
+  }
+  .opening-panel-right {
+    transform-origin: right 45%;
+  }
   .site-header {
     height: 72px;
     padding: 0 22px;
@@ -562,10 +936,14 @@ input[type="checkbox"] {
     display: none;
   }
   .hero {
-    min-height: 690px;
-    padding: 75px 28px 35px;
+    min-height: 640px;
+    padding: 64px 28px 32px;
     background-size: 100% 100%;
     background-position: center;
+  }
+  .hero::after {
+    inset: var(--space-sm);
+    border-color: color-mix(in srgb, var(--line) 45%, transparent);
   }
   .hero h1 {
     letter-spacing: -2px;
@@ -582,7 +960,7 @@ input[type="checkbox"] {
     margin-top: 40px;
   }
   .countdown {
-    gap: 22px;
+    gap: 18px;
   }
   .countdown div {
     min-width: 45px;
@@ -593,8 +971,11 @@ input[type="checkbox"] {
   .countdown span {
     font-size: 0.75rem;
   }
+  .countdown div + div::before {
+    left: -9px;
+  }
   .section {
-    padding: 70px 24px;
+    padding: 62px 24px;
   }
   .eyebrow {
     font-size: 0.75rem;
@@ -604,8 +985,13 @@ input[type="checkbox"] {
     grid-template-columns: 1fr;
   }
   .event-card {
-    min-height: 290px;
-    padding: 36px 22px;
+    min-height: 270px;
+    padding: 32px 22px;
+  }
+  .event-card::after {
+    width: 42px;
+    height: 52px;
+    opacity: 0.08;
   }
   .event-card + .event-card {
     border-left: 0;
@@ -616,9 +1002,23 @@ input[type="checkbox"] {
     gap: 15px;
   }
   .calendar-band {
-    padding: 48px 26px;
+    padding: 42px 26px;
     flex-direction: column;
     align-items: flex-start;
+  }
+  .gifts::before,
+  .gifts::after {
+    width: 58px;
+    height: 95px;
+    opacity: 0.07;
+  }
+  .gift-details,
+  .rsvp-panel {
+    padding: 24px 20px;
+  }
+  .reveal-enabled [data-reveal] {
+    transform: translateY(8px);
+    transition-duration: 0.32s;
   }
   .calendar-band h2 {
     font-size: 2.5rem;
@@ -649,6 +1049,134 @@ input[type="checkbox"] {
     scroll-behavior: auto;
   }
   * {
+    animation: none !important;
     transition: none !important;
+  }
+  .reveal-enabled [data-reveal],
+  .reveal-enabled [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.music-toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 90;
+
+  width: 52px;
+  height: 52px;
+
+  border: 1px solid var(--line);
+  border-radius: 50%;
+
+  background: var(--green);
+  color: var(--white);
+
+  display: grid;
+  place-items: center;
+
+  font-size: 1.4rem;
+  line-height: 1;
+
+  box-shadow: 0 8px 24px rgba(24, 63, 50, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.music-toggle:hover {
+  transform: scale(1.06);
+}
+
+.music-toggle.is-playing {
+  animation: music-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes music-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 600px) {
+  .music-toggle {
+    right: 14px;
+    bottom: 14px;
+    width: 48px;
+    height: 48px;
+  }
+}
+#personal-welcome {
+  margin: 24px auto 30px;
+}
+#invitation-name {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--green);
+  margin: 10px 0;
+}
+.rsvp-person {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+  margin: 0 0 16px;
+  min-width: 0;
+}
+.rsvp-person legend {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.answer-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.answer-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 180px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.answer-options label:has(input:checked) {
+  background: #eaf1e8;
+  border-color: var(--green);
+}
+.answer-options input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--green);
+}
+#rsvp-form {
+  text-align: left;
+}
+#rsvp-form > .button {
+  display: block;
+  margin: 24px auto 0;
+}
+#rsvp-status {
+  min-height: 2em;
+}
+.rsvp-person:focus-within {
+  outline: 2px solid #63866d;
+  outline-offset: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .answer-options label {
+    transition: none;
   }
 }

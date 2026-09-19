@@ -1,3 +1,5 @@
+> Documento histórico de V1. La confirmación manual y el código compartido aquí descritos fueron sustituidos por V2. Para operar o desplegar, usar [V2-OPERACION.md](V2-OPERACION.md) y [V2-ARQUITECTURA.md](V2-ARQUITECTURA.md).
+
 # Carli y Fer — Puesta en marcha sin servicios pagos
 
 **Actualizado el 14/09/2026.** La boda es el 17/10 y desean enviar la invitación el 17/09. Supabase, Google Forms y el repositorio ya fueron configurados. El CNAME del dominio fue cargado y está en propagación. Falta habilitar GitHub Pages, validar el dominio y ejecutar las pruebas finales. No se contrataron planes pagos.
