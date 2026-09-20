@@ -32,7 +32,7 @@ function finishOpening({ moveFocus = true } = {}) {
 }
 
 function waitForOpeningAnimation() {
-  const duration = reducedMotion ? 250 : 2400;
+  const duration = reducedMotion ? 250 : 2200;
 
   return new Promise((resolve) => {
     let timer;
@@ -71,5 +71,4 @@ if (wasOpened()) {
   finishOpening({ moveFocus: false });
 } else {
   openButton.addEventListener("click", openInvitation, { once: true });
-  requestAnimationFrame(() => openButton.focus({ preventScroll: true }));
 }
