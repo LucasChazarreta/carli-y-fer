@@ -17,7 +17,8 @@ const makeStorage = (saved) => ({
 async function loadConfirmed({ saved, validate = async () => ({ ok: true }) }) {
   const validation = { hidden: false, innerHTML: "" };
   const content = { hidden: true, focus() {} };
-  const link = { href: "" };
+  const link = { href: "", hidden: false, removeAttribute() {}, textContent: "" };
+  const memoriesStatus = { textContent: "" };
   const qrOutput = {
     innerHTML: "",
     querySelector: () => ({ prepend() {}, setAttribute() {} }),
@@ -26,6 +27,7 @@ async function loadConfirmed({ saved, validate = async () => ({ ok: true }) }) {
     "#validation": validation,
     "#confirmed-content": content,
     "#memories-link": link,
+    "#memories-status": memoriesStatus,
     "#memories-qr": qrOutput,
   };
   globalThis.document = {
@@ -62,7 +64,8 @@ async function loadConfirmed({ saved, validate = async () => ({ ok: true }) }) {
     `export const api={validateRsvpProof:globalThis.__validate}; // ${nonce}`,
   );
   const album = moduleUrl(
-    `export function publicMemoriesURL(value){const url=new URL(value);url.search="";url.hash="recuerdos";return url.href} // ${nonce}`,
+    `export function publicMemoriesURL(value){const url=new URL(value);url.search="";url.hash="recuerdos";return url.href}
+     export function albumState(){return {kind:"supabase",url:""};} // ${nonce}`,
   );
   const config = moduleUrl(
     `export const config={siteUrl:"https://wedding.example/?apikey=never-in-qr#proof"}; // ${nonce}`,

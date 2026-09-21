@@ -23,12 +23,19 @@
 .confirmed-card .hero-rule { margin-inline: auto; }
 .confirmed-message { max-width: 510px; margin: 0 auto; font-size: 1.05rem; line-height: 1.85; }
 .confirmed-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin: 34px 0 24px; }
+.confirmed-actions button { min-width: 210px; }
 .memories-access { margin: 30px 0; padding-top: 24px; border-top: 1px solid var(--line); }
 .memories-access h2 { margin-bottom: 8px; }
 .memories-access p { color: var(--muted); }
 .memories-qr svg { display: block; width: min(220px, 70vw); height: auto; margin: 18px auto; }
 .return-link { display: inline-block; color: var(--muted); text-decoration: underline; text-underline-offset: 5px; }
 .loader { display: inline-block; width: 42px; height: 42px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: confirmed-spin .8s linear infinite; }
+#confirmed-message-dialog,
+#confirmed-song-dialog { text-align: left; }
+#confirmed-message-dialog form,
+#confirmed-song-dialog form { display: grid; gap: 16px; }
+#confirmed-message-dialog .form-result,
+#confirmed-song-dialog .form-result { min-height: 1.3em; margin-bottom: 0; }
 @keyframes confirmed-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .loader { animation: none; border-color: var(--green); border-left-color: transparent; }
