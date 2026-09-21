@@ -13,7 +13,7 @@ export const initialWedding = {
   partyAddress: "",
   partyMap: "https://goo.su/6zn23",
   sharedMap: "",
-  dressCode: "",
+  dressCode: "Elegante relajado",
   contactPhone: "",
   contactName: "",
   responseDeadline: "2026-09-30",

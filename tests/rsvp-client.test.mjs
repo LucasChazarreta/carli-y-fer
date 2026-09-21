@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import { parseHTML } from "linkedom";
 const moduleURL = (s) =>
   "data:text/javascript;base64," + Buffer.from(s).toString("base64");
-async function loadUI(responder) {
+async function loadUI(responder, overrides = {}) {
   const { document, window } = parseHTML(
     await fs.readFile("public/index.html", "utf8"),
   );
@@ -50,6 +50,7 @@ async function loadUI(responder) {
       { key: "a".repeat(64), name: "Ana", status: "pending" },
       { key: "b".repeat(64), name: "Juan", status: "pending" },
     ],
+    ...overrides,
   };
   globalThis.__client = {
     resolveInvitation: async () => state,
@@ -83,6 +84,17 @@ async function loadUI(responder) {
   };
   return { document, form, state, navigation, values, submit, answer };
 }
+test("confirmation CTA is prominent but remains gated by the resolved invitation", async () => {
+  for (const confirmed of [false, true]) {
+    const ui = await loadUI(async () => ({}), { confirmed });
+    const link = ui.document.querySelector("#confirmed-access");
+    assert.equal(link.hidden, !confirmed);
+    assert.equal(link.getAttribute("href"), "confirmados/");
+    assert.ok(link.classList.contains("button"));
+    assert.ok(link.classList.contains("confirmed-access"));
+    assert.match(link.textContent, /Ir a mi confirmación/);
+  }
+});
 test("V2 client identifies a family from the link, scrubs URL and redirects only after confirmation", async () => {
   const ui = await loadUI(async () => ({
     confirmed: true,

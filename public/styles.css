@@ -541,12 +541,13 @@ select:focus-visible {
 }
 .event-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   margin-top: 48px;
 }
 .event-card {
   position: relative;
+  min-width: 0;
   min-height: 320px;
   padding: 46px 25px;
   border: 1px solid var(--line);
@@ -600,11 +601,54 @@ select:focus-visible {
   background: #eef3ea;
 }
 .event-number {
+  display: block;
+  margin-bottom: 12px;
   font: italic 1.2rem var(--serif);
   color: #64775e;
 }
 .event-card .eyebrow {
   margin: 20px 0 12px;
+}
+.event-card h3 {
+  font-size: clamp(1.65rem, 2.4vw, 2rem);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.dress-card {
+  background: #fcfaf5;
+}
+.dress-details {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid #cbd6c6;
+  padding-top: 22px;
+  margin-top: 24px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.dress-details p + p {
+  margin-top: 18px;
+}
+.dress-details strong {
+  display: block;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+@media (min-width: 701px) and (max-width: 1000px) {
+  .event-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dress-card {
+    grid-column: 1 / -1;
+  }
+  .dress-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .dress-details p + p {
+    margin-top: 0;
+  }
 }
 .time {
   font-family: var(--serif);
@@ -935,6 +979,33 @@ input[type="checkbox"] {
 .rsvp-panel .button-row {
   margin-top: 28px;
 }
+.rsvp-panel .confirmed-access {
+  order: -1;
+  width: 100%;
+  min-height: 68px;
+  padding: 18px 22px;
+  border-radius: 10px;
+  font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 8px 22px #183f3226;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.confirmed-access:not([hidden]) {
+  animation: confirmation-arrive 0.5s ease-out both;
+}
+.confirmed-access .confirmed-arrow {
+  font-size: 1.6rem;
+  transition: transform 0.2s ease;
+}
+.confirmed-access:is(:hover, :focus-visible) .confirmed-arrow {
+  transform: translateX(4px);
+}
+@keyframes confirmation-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .rsvp-thanks {
   text-align: center;
 }
@@ -1058,7 +1129,7 @@ input[type="checkbox"] {
     opacity: 0.08;
   }
   .event-card + .event-card {
-    border-left: 0;
+    border-left: 1px solid var(--line);
     border-top: 1px solid var(--line);
   }
   .event-icon {
