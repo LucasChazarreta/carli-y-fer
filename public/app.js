@@ -1,7 +1,7 @@
 import { invitationToken, currentProof } from "./invitation-session.js";
 import { initialWedding } from "./data.js";
 import { api, configured } from "./api.js";
-import { albumState } from "./album.js";
+import { albumState } from "./album.js?v=20260921-album";
 import {
   escapeHTML,
   safeURL,
@@ -14,6 +14,7 @@ import {
 let wedding = { ...initialWedding };
 const params = new URLSearchParams(location.search);
 const isDraft = params.has("preview");
+let albumLoadState = configured || isDraft ? "loading" : "ready";
 invitationToken();
 const invitationAction =
   location.hash === "#mensaje"
@@ -80,7 +81,9 @@ function render() {
   updateCountdown();
 }
 function renderAlbum() {
-  const state = albumState(wedding);
+  const state = albumLoadState === "ready"
+    ? albumState(wedding)
+    : { kind: albumLoadState, url: "" };
   const external = document.querySelector("#album-external");
   const internal = document.querySelector("#album-form");
   const description = document.querySelector("#album-instructions");
@@ -89,7 +92,19 @@ function renderAlbum() {
   external.hidden = state.kind === "supabase";
   link.hidden = state.kind !== "google_forms";
   link.removeAttribute("href");
-  if (state.kind === "google_forms") {
+  if (state.kind === "loading") {
+    description.textContent = "Estamos cargando el formulario de recuerdos…";
+    document.querySelector("#album-external-note").textContent =
+      "En un momento vas a poder compartir tus fotos y videos.";
+  } else if (state.kind === "unavailable") {
+    description.textContent = "No pudimos cargar el formulario de recuerdos.";
+    document.querySelector("#album-external-note").textContent =
+      "Revisá tu conexión y recargá la página para volver a intentarlo.";
+  } else if (state.kind === "disabled") {
+    description.textContent = "El álbum está desactivado temporalmente.";
+    document.querySelector("#album-external-note").textContent =
+      "Contactá a la pareja para saber cuándo estará disponible.";
+  } else if (state.kind === "google_forms") {
     description.textContent =
       "Compartí tus fotos y videos en nuestro formulario. Los archivos quedan en un espacio privado, sin acceso a los recuerdos de otros invitados.";
     document.querySelector("#album-external-note").textContent =
@@ -210,11 +225,13 @@ for (const id of ["album-form", "message-form", "song-form"]) {
 }
 
 async function hydrate() {
+  let albumSettingsLoaded = !configured && !isDraft;
   if (configured) {
     try {
       const live = await api.wedding();
       if (live) {
         wedding = { ...wedding, ...live };
+        albumSettingsLoaded = true;
         render();
       }
     } catch {
@@ -233,6 +250,7 @@ async function hydrate() {
       );
       if (rows[0]) {
         wedding = { ...wedding, ...rows[0].data };
+        albumSettingsLoaded = true;
         render();
         document.querySelector("#preview-banner").textContent =
           "Vista previa del borrador · los cambios todavía no están publicados.";
@@ -241,6 +259,8 @@ async function hydrate() {
       notify("Ingresá al panel para ver el borrador.", true);
     }
   }
+  albumLoadState = albumSettingsLoaded ? "ready" : "unavailable";
+  renderAlbum();
   if (configured && wedding.showMessages) {
     try {
       const rows = await api.approvedMessages();

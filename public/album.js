@@ -18,11 +18,14 @@ export function googleFormURL(value) {
   }
 }
 export function albumState(wedding, now = Date.now()) {
+  // Hiding the album is an editorial choice, not an expired upload period.
+  if (!wedding.showAlbum) return { kind: "disabled", url: "" };
+  const closesAt = Date.parse(wedding.albumClosesAt);
+  if (!Number.isFinite(closesAt)) return { kind: "pending", url: "" };
+  if (now >= closesAt) return { kind: "closed", url: "" };
   const provider = wedding.albumProvider || "supabase";
   if (!["supabase", "google_forms"].includes(provider))
     return { kind: "pending", url: "" };
-  if (!wedding.showAlbum || now >= new Date(wedding.albumClosesAt).getTime())
-    return { kind: "closed", url: "" };
   if (provider === "supabase") return { kind: "supabase", url: "" };
   const url = googleFormURL(wedding.albumUploadUrl);
   return { kind: url ? "google_forms" : "pending", url };

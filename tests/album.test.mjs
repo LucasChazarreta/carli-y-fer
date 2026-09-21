@@ -50,7 +50,23 @@ test("album handles pending configuration, external mode, internal fallback and 
     albumState(event, Date.parse("2026-11-02T03:00:00Z")).kind,
     "closed",
   );
-  assert.equal(albumState({ ...event, showAlbum: false }, now).kind, "closed");
+  assert.equal(albumState({ ...event, showAlbum: false }, now).kind, "disabled");
+});
+test("uploads stay open before the wedding and throughout November 1 in Argentina", () => {
+  for (const provider of ["google_forms", "supabase"]) {
+    const wedding = { ...event, albumProvider: provider };
+    for (const date of [
+      "2026-09-21T12:00:00-03:00",
+      "2026-10-17T22:00:00-03:00",
+      "2026-11-01T23:59:59.999-03:00",
+    ]) assert.equal(albumState(wedding, Date.parse(date)).kind, provider);
+    assert.equal(albumState(wedding, Date.parse("2026-11-02T00:00:00-03:00")).kind, "closed");
+  }
+});
+test("missing or invalid deadlines cannot unlock uploads or claim the period expired", () => {
+  for (const albumClosesAt of [undefined, null, "", "invalid"]) {
+    assert.equal(albumState({ ...event, albumClosesAt }).kind, "pending");
+  }
 });
 test("public memories URL is stable and strips every kind of private state", () => {
   const expected = "https://boda-carli-fer.agentslucca.online/#recuerdos";
