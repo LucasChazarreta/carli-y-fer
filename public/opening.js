@@ -1,4 +1,4 @@
-import { tryPlayMusic } from "./app.js";
+import { tryPlayMusic } from "./app.js?v=20260921-dress";
 
 const STORAGE_KEY = "cf-invitation-opened";
 const root = document.documentElement;

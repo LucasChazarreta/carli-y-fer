@@ -28,3 +28,13 @@ test("dress divider, responsive columns and reduced-motion-safe CTA are present"
   const app = await fs.readFile("public/app.js", "utf8");
   assert.match(app, /dress.textContent = wedding.dressCode\?\.trim\(\) \|\| "Elegante relajado"/);
 });
+
+test("versioned opening and page share one app module without duplicate initialization", async () => {
+  const { document } = parseHTML(await fs.readFile("public/index.html", "utf8"));
+  const opening = await fs.readFile("public/opening.js", "utf8");
+  const appScript = [...document.querySelectorAll("script[src]")].find((s) => s.getAttribute("src").startsWith("app.js"));
+  assert.ok(appScript.getAttribute("src").includes("?v="));
+  assert.ok(opening.includes(`"./${appScript.getAttribute("src")}"`));
+  assert.ok(document.querySelector('link[href^="styles.css?v="]'));
+  assert.ok(document.querySelector('script[src^="opening.js?v="]'));
+});
