@@ -61,8 +61,7 @@ function render() {
   if (sharedURL) sharedMap.href = sharedURL;
   renderAlbum();
   const dress = document.querySelector("#dress-code");
-  dress.hidden = !wedding.dressCode;
-  dress.textContent = "Vestimenta: " + wedding.dressCode;
+  dress.textContent = wedding.dressCode?.trim() || "Elegante relajado";
   const contact = document.querySelector("#contact-block");
   const phone = wedding.contactPhone.replace(/\D/g, "");
   contact.hidden = !phone;
