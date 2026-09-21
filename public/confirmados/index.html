@@ -23,9 +23,7 @@
         <p>Un momento, por favor.</p>
         <noscript>
           <p>Necesitás activar JavaScript para verificar tu confirmación.</p>
-          <a class="button" href="../#confirmar"
-            >Volver a confirmar asistencia</a
-          >
+          <a class="button" href="../#confirmar">Volver a confirmar asistencia</a>
         </noscript>
       </section>
 
@@ -43,22 +41,87 @@
           día tan importante; nos vemos el 17 de octubre. Acá pueden sugerir
           canciones, dejar mensajes y compartir los recuerdos de la celebración.
         </p>
+
         <div class="confirmed-actions" aria-label="Próximos pasos">
-          <a class="button" href="../#cancion">Sugerir una canción</a
-          ><a class="button outline" href="../#mensaje">Dejar un mensaje</a>
+          <button id="open-confirmed-song" class="button" type="button">
+            Sugerir una canción
+          </button>
+          <button id="open-confirmed-message" class="button outline" type="button">
+            Dejar un mensaje
+          </button>
         </div>
+
         <section class="memories-access" aria-labelledby="memories-title">
           <h2 id="memories-title">Compartí tus recuerdos</h2>
-          <p>Escaneá el QR o abrí el enlace para subir tus fotos y videos.</p>
+          <p id="memories-status" aria-live="polite">
+            Estamos cargando el acceso a los recuerdos…
+          </p>
           <div id="memories-qr" class="memories-qr" aria-live="polite"></div>
-          <a id="memories-link" class="button outline" href="../#recuerdos"
-            >Abrir recuerdos</a
-          >
+          <a id="memories-link" class="button outline" hidden>Abrir recuerdos</a>
         </section>
+
         <a class="return-link" href="../">Volver a la invitación</a>
       </section>
     </main>
+
+    <dialog id="confirmed-message-dialog">
+      <button
+        id="close-confirmed-message"
+        class="close"
+        type="button"
+        aria-label="Cerrar"
+      >×</button>
+      <p class="eyebrow">Buenos deseos</p>
+      <h2>Unas palabras para nosotros</h2>
+      <form id="confirmed-message-form">
+        <label>
+          Tu nombre
+          <input name="name" required maxlength="80" autocomplete="name" />
+        </label>
+        <label>
+          Tu mensaje
+          <textarea name="message" required maxlength="600" rows="4"></textarea>
+        </label>
+        <label class="check">
+          <input type="checkbox" name="consent" required />
+          Acepto que mi nombre y mensaje se muestren si la pareja los aprueba.
+        </label>
+        <input type="hidden" name="action" value="message" />
+        <button class="button" type="submit">Enviar mensaje</button>
+        <p class="form-result" role="status"></p>
+      </form>
+    </dialog>
+
+    <dialog id="confirmed-song-dialog">
+      <button
+        id="close-confirmed-song"
+        class="close"
+        type="button"
+        aria-label="Cerrar"
+      >×</button>
+      <p class="eyebrow">Que suene en la fiesta</p>
+      <h2>Tu canción infaltable</h2>
+      <form id="confirmed-song-form">
+        <label>
+          Tu nombre
+          <input name="name" required maxlength="80" autocomplete="name" />
+        </label>
+        <label>
+          Canción y artista
+          <input
+            name="message"
+            required
+            maxlength="200"
+            placeholder="Nombre de la canción — Artista"
+          />
+        </label>
+        <input type="hidden" name="action" value="song" />
+        <button class="button" type="submit">Enviar canción</button>
+        <p class="form-result" role="status"></p>
+      </form>
+    </dialog>
+
     <script src="../assets/qrcode.js"></script>
-    <script type="module" src="confirmados.js"></script>
+    <script type="module" src="confirmados.js?v=20260921-fix"></script>
   </body>
 </html>
